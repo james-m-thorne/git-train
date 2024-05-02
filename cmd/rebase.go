@@ -15,13 +15,7 @@ import (
 var rebaseCmd = &cobra.Command{
 	Use:   "rebase",
 	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Args: cobra.NoArgs,
+	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
@@ -31,11 +25,17 @@ to quickly create a Cobra application.`,
 		if parentBranch == "" || err != nil {
 			return fmt.Errorf("no parent branch found for %s", currentBranch)
 		}
+		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); skipMergeCheck {
+			state, err := command.GetOutput(git.GitHubPrState())
+			if state != "MERGED" || err != nil {
+				return fmt.Errorf("parent branch is not merged on GitHub, state=%s", state)
+			}
+		}
 		parentsParentBranch, err := command.GetOutput(git.ConfigGetParent(parentBranch))
 		if parentsParentBranch == "" || err != nil {
 			return fmt.Errorf("no parent branch found for %s", parentBranch)
 		}
-		err = command.Exec(git.RebaseOntoParent(parentsParentBranch, parentBranch, currentBranch))
+		err = command.Exec(git.RebaseOntoTarget(parentsParentBranch, parentBranch, currentBranch))
 		if err != nil {
 			return fmt.Errorf("rebase error: %s", err)
 		}
@@ -54,5 +54,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// rebaseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rebaseCmd.Flags().BoolP("skip-merge-check", "S", false, "Skip the merge check for the parent branch")
 }

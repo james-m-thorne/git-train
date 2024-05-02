@@ -17,7 +17,7 @@ func ConfigSetMaster(branch string) string {
 }
 
 func GetCurrentBranch() string {
-	return "git rev-parse --abbrev-ref HEAD"
+	return "git branch --show-current"
 }
 
 func ConfigGetParent(branch string) string {
@@ -36,8 +36,16 @@ func CheckoutNewBranch(branch string) string {
 	return fmt.Sprintf("git checkout -b %s", branch)
 }
 
-func RebaseOntoParent(targetBranch string, parentBranch string, currentBranch string) string {
-	return fmt.Sprintf("git rebase --onto %s %s %s", targetBranch, parentBranch, currentBranch)
+func Checkout(branch string) string {
+	return fmt.Sprintf("git checkout %s", branch)
+}
+
+func Rebase(targetBranch string) string {
+	return fmt.Sprintf("git rebase %s", targetBranch)
+}
+
+func RebaseOntoTarget(targetBranch string, ignoreBranch string, currentBranch string) string {
+	return fmt.Sprintf("git rebase --onto %s %s %s", targetBranch, ignoreBranch, currentBranch)
 }
 
 func Delete(branch string) string {
