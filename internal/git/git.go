@@ -2,7 +2,6 @@ package git
 
 import (
 	"fmt"
-	"github.com/james-m-thorne/git-train/internal/command"
 )
 
 func ConfigGetAll() string {
