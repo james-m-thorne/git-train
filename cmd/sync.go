@@ -41,6 +41,14 @@ var syncCmd = &cobra.Command{
 			if err = command.Exec(git.Rebase(branchStack[i])); err != nil {
 				return fmt.Errorf("rebase failed: %s", err)
 			}
+			err = command.Exec(git.GitHubPrState())
+			if err == nil {
+				if err = command.Exec(git.Push()); err != nil {
+					return fmt.Errorf("push failed: %s", err)
+				}
+			} else {
+				fmt.Printf("no remote found: skipping push for %s\n", branchStack[i])
+			}
 		}
 
 		return nil

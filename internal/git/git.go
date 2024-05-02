@@ -51,3 +51,7 @@ func RebaseOntoTarget(targetBranch string, ignoreBranch string, currentBranch st
 func Delete(branch string) string {
 	return fmt.Sprintf("git branch -D %s", branch)
 }
+
+func Push() string {
+	return "git push"
+}
