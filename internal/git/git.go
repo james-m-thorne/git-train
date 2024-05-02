@@ -29,6 +29,10 @@ func ConfigSetParent(currentBranch string, newBranch string) string {
 	return fmt.Sprintf("git config git-train.%s.parent %s", newBranch, currentBranch)
 }
 
+func ConfigDeleteParent(currentBranch string) string {
+	return fmt.Sprintf("git config --unset git-train.%s.parent 2> /dev/null", currentBranch)
+}
+
 func CheckoutNewBranch(branch string) string {
 	return fmt.Sprintf("git checkout -b %s", branch)
 }
