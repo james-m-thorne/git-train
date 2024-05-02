@@ -39,12 +39,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return fmt.Errorf("rebase error: %s", err)
 		}
-		err = command.Exec(git.ConfigSetParent(currentBranch, parentBranch))
-		if err != nil {
-			return err
-		}
-		_ = command.Exec(git.ConfigDeleteParent(parentBranch))
-		return command.Exec(git.Delete(parentBranch))
+		return command.Exec(git.ConfigSetParent(currentBranch, parentBranch))
 	},
 }
 
