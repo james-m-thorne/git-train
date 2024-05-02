@@ -33,18 +33,10 @@ func CheckoutNewBranch(branch string) string {
 	return fmt.Sprintf("git checkout -b %s", branch)
 }
 
-func RebaseOntoParent() (string, error) {
-	currentBranch, err := command.GetOutput(GetCurrentBranch())
-	if currentBranch == "" || err != nil {
-		return "", fmt.Errorf("current branch not found")
-	}
-	parentBranch, err := command.GetOutput(ConfigGetParent(currentBranch))
-	if parentBranch == "" || err != nil {
-		return "", fmt.Errorf("no parent branch found for %s", currentBranch)
-	}
-	parentsParentBranch, err := command.GetOutput(ConfigGetParent(parentBranch))
-	if parentsParentBranch == "" || err != nil {
-		return "", fmt.Errorf("no parent branch found for %s", parentBranch)
-	}
-	return fmt.Sprintf("git rebase --onto %s %s %s", parentsParentBranch, parentBranch, currentBranch), nil
+func RebaseOntoParent(targetBranch string, parentBranch string, currentBranch string) string {
+	return fmt.Sprintf("git rebase --onto %s %s %s", targetBranch, parentBranch, currentBranch)
+}
+
+func Delete(branch string) string {
+	return fmt.Sprintf("git branch -D %s", branch)
 }
