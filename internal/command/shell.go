@@ -37,5 +37,7 @@ func GetOutput(command string) (string, error) {
 		return "", fmt.Errorf("%s: %s", err, stderr.String())
 	}
 
-	return stdout.String(), nil
+	output := stdout.String()
+	output = output[:len(output)-1] // trim the new line char
+	return output, nil
 }
