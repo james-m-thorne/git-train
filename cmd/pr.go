@@ -19,14 +19,22 @@ var prCmd = &cobra.Command{
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
-		parentBranch := command.GetOutputFatal(git.ConfigGetParent(currentBranch))
-		if parentBranch == "" {
-			command.PrintFatalError("no parent branch found for %s", currentBranch)
+		branchStack := []string{currentBranch}
+		createParents, _ := cmd.Flags().GetBool("create-parents")
+		if createParents {
+			branchStack = git.GetBranchParentStack(currentBranch, false)
 		}
-		RunFatal(git.GitHubPrCreate(parentBranch))
+
+		for _, branch := range branchStack {
+			state, _ := command.GetOutput(git.GitHubPrState())
+			if state == "" {
+				RunFatal(git.GitHubPrCreate(branch))
+			}
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(prCmd)
+	prCmd.Flags().BoolP("create-parents", "c", false, "Create/update the PR's of the parent branches")
 }
