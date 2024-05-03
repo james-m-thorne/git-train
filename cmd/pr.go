@@ -26,6 +26,7 @@ var prCmd = &cobra.Command{
 		}
 
 		for _, branch := range branchStack {
+			RunFatal(git.PushSetUpstream())
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
 				RunFatal(git.GitHubPrCreate(branch))
