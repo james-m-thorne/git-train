@@ -11,19 +11,12 @@ import (
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Manage config values for git-train",
 }
 
 var configGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get config values for git-train",
-	Long:  `Get all config values for git-train`,
 	Args:  cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return Run(git.ConfigGetAll())
@@ -33,15 +26,12 @@ var configGetCmd = &cobra.Command{
 var configSetCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Set config values for git-train",
-	Long: `Set values for:
-master_branch: Name of the master branch`,
-	Args: cobra.ExactArgs(2),
+	Args:  cobra.ExactArgs(2),
 }
 
 var configSetMasterBranchCmd = &cobra.Command{
 	Use:   "master_branch",
 	Short: "Set the master branch name",
-	Long:  `Set the default name of the master branch`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return Run(git.ConfigSetMaster(args[0]))
