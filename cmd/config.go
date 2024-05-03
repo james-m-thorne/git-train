@@ -6,6 +6,7 @@ package cmd
 import (
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // configCmd represents the config command
@@ -18,8 +19,11 @@ var configGetCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get config values for git-train",
 	Args:  cobra.ExactArgs(0),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return Run(git.ConfigGetAll())
+	Run: func(cmd *cobra.Command, args []string) {
+		err := Run(git.ConfigGetAll())
+		if err != nil {
+			log.Fatalf("fetching config failed: %s", err)
+		}
 	},
 }
 
@@ -33,8 +37,11 @@ var configSetMasterBranchCmd = &cobra.Command{
 	Use:   "master_branch",
 	Short: "Set the master branch name",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return Run(git.ConfigSetMaster(args[0]))
+	Run: func(cmd *cobra.Command, args []string) {
+		err := Run(git.ConfigSetMaster(args[0]))
+		if err != nil {
+			log.Fatalf("failed to set master: %s", err)
+		}
 	},
 }
 

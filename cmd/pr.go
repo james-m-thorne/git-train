@@ -4,9 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -15,16 +15,19 @@ import (
 var prCmd = &cobra.Command{
 	Use:   "pr",
 	Short: "Create a GitHub PR on the current branch and set the base as the parent",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
-			return fmt.Errorf("current branch not found")
+			log.Fatalf("current branch not found")
 		}
 		parentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
 		if parentBranch == "" || err != nil {
-			return fmt.Errorf("no parent branch found for %s", currentBranch)
+			log.Fatalf("no parent branch found for %s", currentBranch)
 		}
-		return Run(git.GitHubPrCreate(parentBranch))
+		err = Run(git.GitHubPrCreate(parentBranch))
+		if err != nil {
+			log.Fatalf("failed to create pr: %s", err)
+		}
 	},
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // appendCmd represents the append command
@@ -14,17 +15,20 @@ var appendCmd = &cobra.Command{
 	Use:   "append",
 	Short: "Create a new branch from the current one, and store the parent in config",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		newBranch := args[0]
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if err != nil {
-			return err
+			log.Fatalf("failed to set parent %s", currentBranch)
 		}
 		err = Run(git.ConfigSetParent(newBranch, currentBranch))
 		if err != nil {
-			return err
+			log.Fatalf("failed to set parent %s", currentBranch)
 		}
-		return Run(git.CheckoutNewBranch(newBranch))
+		err = Run(git.CheckoutNewBranch(newBranch))
+		if err != nil {
+			log.Fatalf("checkout failed for %s", newBranch)
+		}
 	},
 }
 

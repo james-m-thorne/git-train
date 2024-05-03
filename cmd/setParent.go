@@ -4,9 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -16,32 +16,35 @@ var setParentCmd = &cobra.Command{
 	Use:   "set-parent",
 	Short: "Sets the new parent branch",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		newParentBranch := args[0]
 		if err := Run(git.CheckBranchExists(newParentBranch)); err != nil {
-			return fmt.Errorf("branch does not exists %s", newParentBranch)
+			log.Fatalf("branch does not exists %s", newParentBranch)
 		}
 
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if err != nil {
-			return fmt.Errorf("unable to get current branch")
+			log.Fatalf("unable to get current branch")
 		}
 		masterBranch, _ := command.GetOutput(git.ConfigGetMaster())
 		if currentBranch == masterBranch {
-			return nil
+			return
 		}
 
 		if rebase, _ := cmd.Flags().GetBool("rebase"); rebase {
 			oldParentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
 			if err != nil {
-				return fmt.Errorf("unable to get current branch")
+				log.Fatalf("unable to get current branch")
 			}
 			err = Run(git.RebaseOntoTarget(newParentBranch, oldParentBranch, currentBranch))
 			if err != nil {
-				return fmt.Errorf("rebase failed, fix it and rerun this command")
+				log.Fatalf("rebase failed, fix it and rerun this command")
 			}
 		}
-		return Run(git.ConfigSetParent(currentBranch, newParentBranch))
+		err = Run(git.ConfigSetParent(currentBranch, newParentBranch))
+		if err != nil {
+			log.Fatalf("failed to set parent: %s", err)
+		}
 	},
 }
 

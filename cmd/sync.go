@@ -4,9 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -15,47 +15,45 @@ import (
 var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync all of the parent branches with upstream and to your current one",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
-			return fmt.Errorf("current branch not found")
+			log.Fatalf("current branch not found")
 		}
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
 		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
 		if len(branchStack) <= 1 {
-			return fmt.Errorf("no parent branches found")
+			log.Fatalf("no parent branches found")
 		}
 
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 		if !noUpdate {
 			if err = Run(git.Checkout(branchStack[len(branchStack)-1])); err != nil {
-				return fmt.Errorf("checkout failed: %s", err)
+				log.Fatalf("checkout failed: %s", err)
 			}
 			if err = Run(git.Pull()); err != nil {
-				return fmt.Errorf("pull failed: %s", err)
+				log.Fatalf("pull failed: %s", err)
 			}
 		}
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			if err = Run(git.Checkout(branchStack[i-1])); err != nil {
-				return fmt.Errorf("checkout failed: %s", err)
+				log.Fatalf("checkout failed: %s", err)
 			}
 			if !noUpdate {
 				if err = Run(git.Pull()); err != nil {
-					return fmt.Errorf("pull failed: %s", err)
+					log.Fatalf("pull failed: %s", err)
 				}
 			}
 			if err = Run(git.Rebase(branchStack[i])); err != nil {
-				return fmt.Errorf("rebase failed: %s", err)
+				log.Fatalf("rebase failed: %s", err)
 			}
 			if !noUpdate {
 				if err = Run(git.Push()); err != nil {
-					return fmt.Errorf("push failed: %s", err)
+					log.Fatalf("push failed: %s", err)
 				}
 			}
 		}
-
-		return nil
 	},
 }
 

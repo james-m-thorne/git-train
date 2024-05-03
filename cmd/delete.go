@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/james-m-thorne/git-train/internal/git"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -15,10 +16,10 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete a branch and remove the stored parent config",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		deleteBranch := args[0]
 		if err := Run(git.CheckBranchExists(deleteBranch)); err != nil {
-			return fmt.Errorf("branch does not exists %s", deleteBranch)
+			log.Fatalf("branch does not exists %s", deleteBranch)
 		}
 
 		deleteBranches := []string{deleteBranch}
@@ -34,7 +35,6 @@ var deleteCmd = &cobra.Command{
 				fmt.Printf("failed to delete %s", branch)
 			}
 		}
-		return nil
 	},
 }
 
