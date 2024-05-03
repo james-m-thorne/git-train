@@ -24,13 +24,13 @@ var prCmd = &cobra.Command{
 		branchesToCreate := 1
 		createAllParents, _ := cmd.Flags().GetBool("create-parents")
 		if createAllParents {
-			branchesToCreate = len(branchStack)
+			branchesToCreate = len(branchStack) - 1
 			branchStack = git.GetBranchParentStack(currentBranch, false)
 		}
 
-		for i := 1; i < branchesToCreate; i++ {
-			branch := branchStack[i-1]
-			parentBranch := branchStack[i]
+		for i := 0; i < branchesToCreate; i++ {
+			branch := branchStack[i]
+			parentBranch := branchStack[i+1]
 			RunFatal(git.Checkout(branch))
 			RunFatal(git.PushSetUpstream())
 			state, _ := command.GetOutput(git.GitHubPrState())
