@@ -48,6 +48,10 @@ func Checkout(branch string) string {
 	return fmt.Sprintf("git checkout %s", branch)
 }
 
+func Merge(targetBranch string) string {
+	return fmt.Sprintf("git merge %s", targetBranch)
+}
+
 func Rebase(targetBranch string) string {
 	return fmt.Sprintf("git rebase %s", targetBranch)
 }
