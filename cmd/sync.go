@@ -23,21 +23,35 @@ var syncCmd = &cobra.Command{
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
 		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
+		if len(branchStack) <= 1 {
+			return fmt.Errorf("no parent branches found")
+		}
 
+		noUpdate, _ := cmd.Flags().GetBool("no-update")
+		if !noUpdate {
+			if err = Run(git.Checkout(branchStack[len(branchStack)-1])); err != nil {
+				return fmt.Errorf("checkout failed: %s", err)
+			}
+			if err = Run(git.Pull()); err != nil {
+				return fmt.Errorf("pull failed: %s", err)
+			}
+		}
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			if err = Run(git.Checkout(branchStack[i-1])); err != nil {
 				return fmt.Errorf("checkout failed: %s", err)
 			}
+			if !noUpdate {
+				if err = Run(git.PullRebase()); err != nil {
+					return fmt.Errorf("pull failed: %s", err)
+				}
+			}
 			if err = Run(git.Rebase(branchStack[i])); err != nil {
 				return fmt.Errorf("rebase failed: %s", err)
 			}
-			_, err := command.GetOutput(git.GitHubPrState())
-			if err == nil {
+			if !noUpdate {
 				if err = Run(git.Push()); err != nil {
 					return fmt.Errorf("push failed: %s", err)
 				}
-			} else {
-				fmt.Printf("no remote found: skipping push for %s\n", branchStack[i])
 			}
 		}
 
@@ -48,4 +62,5 @@ var syncCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(syncCmd)
 	syncCmd.Flags().BoolP("include-master", "i", false, "Sync all the parent branches and include the master branch")
+	syncCmd.Flags().BoolP("no-update", "n", false, "Do not pull/push the latest changes to remote vcs")
 }

@@ -57,5 +57,13 @@ func Delete(branch string) string {
 }
 
 func Push() string {
-	return "git push"
+	return "git push --force-with-lease"
+}
+
+func Pull() string {
+	return "git pull"
+}
+
+func PullRebase() string {
+	return "git pull --rebase"
 }
