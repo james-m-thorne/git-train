@@ -14,7 +14,7 @@ import (
 // showCmd represents the show command
 var showCmd = &cobra.Command{
 	Use:   "show",
-	Short: "A brief description of your command",
+	Short: "Show a tree like view of your branches stored in config",
 	Run: func(cmd *cobra.Command, args []string) {
 		masterBranch, _ := command.GetOutput(git.ConfigGetMaster())
 

@@ -14,7 +14,7 @@ import (
 // prCmd represents the pr command
 var prCmd = &cobra.Command{
 	Use:   "pr",
-	Short: "A brief description of your command",
+	Short: "Create a GitHub PR on the current branch and set the base as the parent",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {

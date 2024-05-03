@@ -12,8 +12,7 @@ import (
 // appendCmd represents the append command
 var appendCmd = &cobra.Command{
 	Use:   "append",
-	Short: "Create a new branch and append it to the current one",
-	Long:  `Create a new branch and append it to the current one and store the parent in config`,
+	Short: "Create a new branch from the current one, and store the parent in config",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		newBranch := args[0]

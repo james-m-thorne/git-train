@@ -14,7 +14,7 @@ import (
 // setMergedCmd represents the merge command
 var setMergedCmd = &cobra.Command{
 	Use:   "set-merged",
-	Short: "A brief description of your command",
+	Short: "Remove a branch train and rebase all of the descendants",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())

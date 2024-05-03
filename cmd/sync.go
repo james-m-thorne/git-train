@@ -14,7 +14,7 @@ import (
 // syncCmd represents the sync command
 var syncCmd = &cobra.Command{
 	Use:   "sync",
-	Short: "A brief description of your command",
+	Short: "Sync all of the parent branches with upstream and to your current one",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
