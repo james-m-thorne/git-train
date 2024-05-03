@@ -64,6 +64,10 @@ func Push() string {
 	return "git push --force-with-lease"
 }
 
+func PushSetUpstream() string {
+	return "git push -u origin HEAD"
+}
+
 func Pull() string {
 	return "git pull"
 }

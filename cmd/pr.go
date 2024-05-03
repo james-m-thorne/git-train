@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 
@@ -19,16 +20,22 @@ var prCmd = &cobra.Command{
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
-		branchStack := []string{currentBranch}
-		createParents, _ := cmd.Flags().GetBool("create-parents")
-		if createParents {
-			branchStack = git.GetBranchParentStack(currentBranch, false)
+		branchStack := git.GetBranchParentStack(currentBranch, true)
+
+		branchesToCreate := 1
+		createAllParents, _ := cmd.Flags().GetBool("create-parents")
+		if createAllParents {
+			branchesToCreate = len(branchStack) - 1
 		}
 
-		for _, branch := range branchStack {
+		for i := 0; i < branchesToCreate; i++ {
+			branch := branchStack[i]
+			parentBranch := branchStack[i+1]
+			RunFatal(git.Checkout(branch))
+			RunFatal(git.PushSetUpstream())
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
-				RunFatal(git.GitHubPrCreate(branch))
+				RunFatal(git.GitHubPrCreate(parentBranch))
 			}
 		}
 	},
