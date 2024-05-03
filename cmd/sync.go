@@ -26,7 +26,7 @@ var syncCmd = &cobra.Command{
 			command.PrintFatalError("no parent branches found")
 		}
 
-		strategy := cmd.Flags().GetString("strategy")
+		strategy, _ := cmd.Flags().GetString("strategy")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 		if !noUpdate {
 			RunFatal(git.Checkout(branchStack[len(branchStack)-1]))
