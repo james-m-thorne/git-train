@@ -22,6 +22,11 @@ var setParentCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("unable to get current branch")
 		}
+		masterBranch, _ := command.GetOutput(git.ConfigGetMaster())
+		if currentBranch == masterBranch {
+			return nil
+		}
+
 		if rebase, _ := cmd.Flags().GetBool("rebase"); rebase {
 			oldParentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
 			if err != nil {
