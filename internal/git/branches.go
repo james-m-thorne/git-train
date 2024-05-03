@@ -1,12 +1,26 @@
 package git
 
 import (
-	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/xlab/treeprint"
 	"regexp"
 	"strings"
 )
+
+func GetBranchChildren(branch string) []string {
+	pattern := regexp.MustCompile(`git-train\.(.*?)\.parent`)
+	childrenString, _ := command.GetOutput(ConfigGetChild(branch))
+	childrenConfigValues := strings.Split(childrenString, "\n")
+
+	var children []string
+	for _, child := range childrenConfigValues {
+		matches := pattern.FindStringSubmatch(child)
+		if matches != nil && len(matches) > 1 {
+			children = append(children, matches[1])
+		}
+	}
+	return children
+}
 
 func GetBranchParentStack(currentBranch string, includeMaster bool) []string {
 	var branchStack []string
@@ -25,24 +39,10 @@ func GetBranchParentStack(currentBranch string, includeMaster bool) []string {
 	return branchStack
 }
 
-func PrintBranchChildTree() {
-	masterBranch, _ := command.GetOutput(ConfigGetMaster())
-
-	tree := treeprint.NewWithRoot(masterBranch)
-	AddChildBranches(tree, masterBranch)
-	fmt.Println(tree.String())
-}
-
 func AddChildBranches(tree treeprint.Tree, branch string) {
-	pattern := regexp.MustCompile(`git-train\.(.*?)\.parent`)
-
 	childTree := tree.AddBranch(branch)
-	childrenString, _ := command.GetOutput(ConfigGetChild(branch))
-	children := strings.Split(childrenString, "\n")
+	children := GetBranchChildren(branch)
 	for _, child := range children {
-		matches := pattern.FindStringSubmatch(child)
-		if matches != nil && len(matches) > 1 {
-			AddChildBranches(childTree, matches[1])
-		}
+		AddChildBranches(childTree, child)
 	}
 }
