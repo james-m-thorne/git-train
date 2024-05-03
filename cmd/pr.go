@@ -20,6 +20,9 @@ var prCmd = &cobra.Command{
 			command.PrintFatalError("current branch not found")
 		}
 		branchStack := git.GetBranchParentStack(currentBranch, true)
+		if len(branchStack) <= 1 {
+			command.PrintFatalError("no parent branches found")
+		}
 
 		branchesToCreate := 1
 		createAllParents, _ := cmd.Flags().GetBool("create-parents")
