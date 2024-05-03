@@ -27,8 +27,12 @@ func Execute() {
 
 var IsDryRun bool
 
-func Run(shell string) error {
-	return command.Exec(shell, IsDryRun)
+func RunFatal(shell string) {
+	command.Exec(shell, true, IsDryRun)
+}
+
+func Run(shell string) {
+	command.Exec(shell, false, IsDryRun)
 }
 
 func init() {

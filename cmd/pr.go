@@ -6,7 +6,6 @@ package cmd
 import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -18,16 +17,13 @@ var prCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
-			log.Fatalf("current branch not found")
+			command.PrintFatalError("current branch not found")
 		}
 		parentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
 		if parentBranch == "" || err != nil {
-			log.Fatalf("no parent branch found for %s", currentBranch)
+			command.PrintFatalError("no parent branch found for %s", currentBranch)
 		}
-		err = Run(git.GitHubPrCreate(parentBranch))
-		if err != nil {
-			log.Fatalf("failed to create pr: %s", err)
-		}
+		RunFatal(git.GitHubPrCreate(parentBranch))
 	},
 }
 

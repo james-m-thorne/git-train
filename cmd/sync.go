@@ -6,8 +6,6 @@ package cmd
 import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,40 +16,28 @@ var syncCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
-			log.Fatalf("current branch not found")
+			command.PrintFatalError("current branch not found")
 		}
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
 		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
 		if len(branchStack) <= 1 {
-			log.Fatalf("no parent branches found")
+			command.PrintFatalError("no parent branches found")
 		}
 
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 		if !noUpdate {
-			if err = Run(git.Checkout(branchStack[len(branchStack)-1])); err != nil {
-				log.Fatalf("checkout failed: %s", err)
-			}
-			if err = Run(git.Pull()); err != nil {
-				log.Fatalf("pull failed: %s", err)
-			}
+			RunFatal(git.Checkout(branchStack[len(branchStack)-1]))
+			RunFatal(git.Pull())
 		}
 		for i := len(branchStack) - 1; i >= 1; i-- {
-			if err = Run(git.Checkout(branchStack[i-1])); err != nil {
-				log.Fatalf("checkout failed: %s", err)
-			}
+			RunFatal(git.Checkout(branchStack[i-1]))
 			if !noUpdate {
-				if err = Run(git.Pull()); err != nil {
-					log.Fatalf("pull failed: %s", err)
-				}
+				RunFatal(git.Pull())
 			}
-			if err = Run(git.Rebase(branchStack[i])); err != nil {
-				log.Fatalf("rebase failed: %s", err)
-			}
+			RunFatal(git.Rebase(branchStack[i]))
 			if !noUpdate {
-				if err = Run(git.Push()); err != nil {
-					log.Fatalf("push failed: %s", err)
-				}
+				RunFatal(git.Push())
 			}
 		}
 	},

@@ -7,7 +7,6 @@ import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 // appendCmd represents the append command
@@ -19,16 +18,10 @@ var appendCmd = &cobra.Command{
 		newBranch := args[0]
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if err != nil {
-			log.Fatalf("failed to set parent %s", currentBranch)
+			command.PrintFatalError("failed to set parent %s", currentBranch)
 		}
-		err = Run(git.ConfigSetParent(newBranch, currentBranch))
-		if err != nil {
-			log.Fatalf("failed to set parent %s", currentBranch)
-		}
-		err = Run(git.CheckoutNewBranch(newBranch))
-		if err != nil {
-			log.Fatalf("checkout failed for %s", newBranch)
-		}
+		RunFatal(git.ConfigSetParent(newBranch, currentBranch))
+		RunFatal(git.CheckoutNewBranch(newBranch))
 	},
 }
 

@@ -4,10 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/james-m-thorne/git-train/internal/git"
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +15,7 @@ var deleteCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		deleteBranch := args[0]
-		if err := Run(git.CheckBranchExists(deleteBranch)); err != nil {
-			log.Fatalf("branch does not exists %s", deleteBranch)
-		}
+		RunFatal(git.CheckBranchExists(deleteBranch))
 
 		deleteBranches := []string{deleteBranch}
 		deleteChildren, _ := cmd.Flags().GetBool("children")
@@ -29,11 +24,8 @@ var deleteCmd = &cobra.Command{
 		}
 
 		for _, branch := range deleteBranches {
-			_ = Run(git.ConfigDeleteParent(branch))
-			err := Run(git.Delete(branch))
-			if err != nil {
-				fmt.Printf("failed to delete %s", branch)
-			}
+			Run(git.ConfigDeleteParent(branch))
+			RunFatal(git.Delete(branch))
 		}
 	},
 }

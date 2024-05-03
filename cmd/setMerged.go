@@ -6,8 +6,6 @@ package cmd
 import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
-	"log"
-
 	"github.com/spf13/cobra"
 )
 
@@ -19,22 +17,20 @@ var setMergedCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
-			log.Fatalf("current branch not found")
+			command.PrintFatalError("current branch not found")
 		}
 
 		childBranch, err := command.GetOutput(git.ConfigGetChild(currentBranch))
 		if childBranch != "" || err == nil {
-			log.Fatalf("must be a branch with no children")
+			command.PrintFatalError("must be a branch with no children")
 		}
 
 		mergedBranch := args[0]
 		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); !skipMergeCheck {
-			if err = Run(git.Checkout(mergedBranch)); err != nil {
-				log.Fatalf("checkout failed: %s", err)
-			}
+			RunFatal(git.Checkout(mergedBranch))
 			state, err := command.GetOutput(git.GitHubPrState())
 			if state != "MERGED" || err != nil {
-				log.Fatalf("parent branch is not merged on GitHub, state=%s", state)
+				command.PrintFatalError("parent branch is not merged on GitHub, state=%s", state)
 			}
 		}
 
@@ -50,26 +46,18 @@ var setMergedCmd = &cobra.Command{
 			}
 			if currentBranch == mergedBranch {
 				if i-2 < 0 {
-					log.Fatalf("merged branch has no parent: %s", mergedBranch)
+					command.PrintFatalError("merged branch has no parent: %s", mergedBranch)
 				}
 				currentBranch = branchStack[i-2]
-				err = Run(git.ConfigSetParent(currentBranch, parentBranch))
-				if err != nil {
-					log.Fatalf("failed to set new parent branch for %s", currentBranch)
-				}
+				RunFatal(git.ConfigSetParent(currentBranch, parentBranch))
 				hasPassedMergedBranch = true
 			}
 
-			if err = Run(git.Checkout(currentBranch)); err != nil {
-				log.Fatalf("checkout failed: %s", err)
-			}
+			RunFatal(git.Checkout(currentBranch))
 			if hasPassedMergedBranch {
-				err = Run(git.RebaseOntoTarget(parentBranch, mergedBranch, currentBranch))
+				RunFatal(git.RebaseOntoTarget(parentBranch, mergedBranch, currentBranch))
 			} else {
-				err = Run(git.Rebase(parentBranch))
-			}
-			if err != nil {
-				log.Fatalf("rebase error: %s", err)
+				RunFatal(git.Rebase(parentBranch))
 			}
 		}
 	},
