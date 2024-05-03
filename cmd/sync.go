@@ -41,7 +41,7 @@ var syncCmd = &cobra.Command{
 				return fmt.Errorf("checkout failed: %s", err)
 			}
 			if !noUpdate {
-				if err = Run(git.PullRebase()); err != nil {
+				if err = Run(git.Pull()); err != nil {
 					return fmt.Errorf("pull failed: %s", err)
 				}
 			}

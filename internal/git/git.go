@@ -63,7 +63,3 @@ func Push() string {
 func Pull() string {
 	return "git pull"
 }
-
-func PullRebase() string {
-	return "git pull --rebase"
-}
