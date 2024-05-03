@@ -15,12 +15,12 @@ var prCmd = &cobra.Command{
 	Use:   "pr",
 	Short: "Create a GitHub PR on the current branch and set the base as the parent",
 	Run: func(cmd *cobra.Command, args []string) {
-		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
-		if currentBranch == "" || err != nil {
+		currentBranch := GetOutputFatal(git.GetCurrentBranch())
+		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
-		parentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
-		if parentBranch == "" || err != nil {
+		parentBranch := GetOutputFatal(git.ConfigGetParent(currentBranch))
+		if parentBranch == "" {
 			command.PrintFatalError("no parent branch found for %s", currentBranch)
 		}
 		RunFatal(git.GitHubPrCreate(parentBranch))

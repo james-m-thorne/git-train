@@ -15,21 +15,21 @@ var setMergedCmd = &cobra.Command{
 	Short: "Remove a branch train and rebase all of the descendants",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
-		if currentBranch == "" || err != nil {
+		currentBranch := GetOutputFatal(git.GetCurrentBranch())
+		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
 
-		childBranch, err := command.GetOutput(git.ConfigGetChild(currentBranch))
-		if childBranch != "" || err == nil {
+		childBranch := GetOutputFatal(git.ConfigGetChild(currentBranch))
+		if childBranch != "" {
 			command.PrintFatalError("must be a branch with no children")
 		}
 
 		mergedBranch := args[0]
 		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); !skipMergeCheck {
 			RunFatal(git.Checkout(mergedBranch))
-			state, err := command.GetOutput(git.GitHubPrState())
-			if state != "MERGED" || err != nil {
+			state := GetOutputFatal(git.GitHubPrState())
+			if state != "MERGED" {
 				command.PrintFatalError("parent branch is not merged on GitHub, state=%s", state)
 			}
 		}

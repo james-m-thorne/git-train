@@ -19,24 +19,15 @@ var setParentCmd = &cobra.Command{
 		newParentBranch := args[0]
 		RunFatal(git.CheckBranchExists(newParentBranch))
 
-		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
-		if err != nil {
-			command.PrintFatalError("unable to get current branch")
-		}
+		currentBranch := GetOutputFatal(git.GetCurrentBranch())
 		masterBranch, _ := command.GetOutput(git.ConfigGetMaster())
 		if currentBranch == masterBranch {
 			return
 		}
 
 		if rebase, _ := cmd.Flags().GetBool("rebase"); rebase {
-			oldParentBranch, err := command.GetOutput(git.ConfigGetParent(currentBranch))
-			if err != nil {
-				command.PrintFatalError("unable to get current branch")
-			}
+			oldParentBranch := GetOutputFatal(git.ConfigGetParent(currentBranch))
 			RunFatal(git.RebaseOntoTarget(newParentBranch, oldParentBranch, currentBranch))
-			if err != nil {
-				command.PrintFatalError("rebase failed, fix it and rerun this command")
-			}
 		}
 		RunFatal(git.ConfigSetParent(currentBranch, newParentBranch))
 	},

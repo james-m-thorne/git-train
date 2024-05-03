@@ -31,6 +31,14 @@ func RunFatal(shell string) {
 	command.Exec(shell, true, IsDryRun)
 }
 
+func GetOutputFatal(shell string) string {
+	result, err := command.GetOutput(shell)
+	if err != nil {
+		command.PrintFatalError("%s: %s", shell, err)
+	}
+	return result
+}
+
 func Run(shell string) {
 	command.Exec(shell, false, IsDryRun)
 }
