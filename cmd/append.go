@@ -21,11 +21,11 @@ var appendCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = command.Exec(git.ConfigSetParent(newBranch, currentBranch))
+		err = Run(git.ConfigSetParent(newBranch, currentBranch))
 		if err != nil {
 			return err
 		}
-		return command.Exec(git.CheckoutNewBranch(newBranch))
+		return Run(git.CheckoutNewBranch(newBranch))
 	},
 }
 

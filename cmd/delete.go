@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 
 	"github.com/spf13/cobra"
@@ -17,8 +16,8 @@ var deleteCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		branch := args[0]
-		_ = command.Exec(git.ConfigDeleteParent(branch))
-		return command.Exec(git.Delete(branch))
+		_ = Run(git.ConfigDeleteParent(branch))
+		return Run(git.Delete(branch))
 	},
 }
 

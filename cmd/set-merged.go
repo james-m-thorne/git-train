@@ -29,7 +29,7 @@ var setMergedCmd = &cobra.Command{
 
 		mergedBranch := args[0]
 		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); !skipMergeCheck {
-			if err = command.Exec(git.Checkout(mergedBranch)); err != nil {
+			if err = Run(git.Checkout(mergedBranch)); err != nil {
 				return fmt.Errorf("checkout failed: %s", err)
 			}
 			state, err := command.GetOutput(git.GitHubPrState())
@@ -38,18 +38,8 @@ var setMergedCmd = &cobra.Command{
 			}
 		}
 
-		var branchStack []string
-		masterBranch := ""
-		if includeMaster, _ := cmd.Flags().GetBool("include-master"); !includeMaster {
-			masterBranch, _ = command.GetOutput(git.ConfigGetMaster())
-		}
-		for currentBranch != masterBranch {
-			branchStack = append(branchStack, currentBranch)
-			currentBranch, err = command.GetOutput(git.ConfigGetParent(currentBranch))
-			if err != nil {
-				break
-			}
-		}
+		includeMaster, _ := cmd.Flags().GetBool("include-master")
+		branchStack := git.GetBranchStack(currentBranch, includeMaster)
 
 		hasPassedMergedBranch := false
 		for i := len(branchStack) - 1; i >= 1; i-- {
@@ -63,20 +53,20 @@ var setMergedCmd = &cobra.Command{
 					return fmt.Errorf("merged branch has no parent: %s", mergedBranch)
 				}
 				currentBranch = branchStack[i-2]
-				err = command.Exec(git.ConfigSetParent(currentBranch, parentBranch))
+				err = Run(git.ConfigSetParent(currentBranch, parentBranch))
 				if err != nil {
 					return fmt.Errorf("failed to set new parent branch for %s", currentBranch)
 				}
 				hasPassedMergedBranch = true
 			}
 
-			if err = command.Exec(git.Checkout(currentBranch)); err != nil {
+			if err = Run(git.Checkout(currentBranch)); err != nil {
 				return fmt.Errorf("checkout failed: %s", err)
 			}
 			if hasPassedMergedBranch {
-				err = command.Exec(git.RebaseOntoTarget(parentBranch, mergedBranch, currentBranch))
+				err = Run(git.RebaseOntoTarget(parentBranch, mergedBranch, currentBranch))
 			} else {
-				err = command.Exec(git.Rebase(parentBranch))
+				err = Run(git.Rebase(parentBranch))
 			}
 			if err != nil {
 				return fmt.Errorf("rebase error: %s", err)

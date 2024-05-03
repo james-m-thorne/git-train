@@ -24,7 +24,7 @@ var prCmd = &cobra.Command{
 		if parentBranch == "" || err != nil {
 			return fmt.Errorf("no parent branch found for %s", currentBranch)
 		}
-		return command.Exec(git.GitHubPrCreate(parentBranch))
+		return Run(git.GitHubPrCreate(parentBranch))
 	},
 }
 

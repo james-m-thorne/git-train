@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +26,7 @@ var configGetCmd = &cobra.Command{
 	Long:  `Get all config values for git-train`,
 	Args:  cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return command.Exec(git.ConfigGetAll())
+		return Run(git.ConfigGetAll())
 	},
 }
 
@@ -45,7 +44,7 @@ var configSetMasterBranchCmd = &cobra.Command{
 	Long:  `Set the default name of the master branch`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return command.Exec(git.ConfigSetMaster(args[0]))
+		return Run(git.ConfigSetMaster(args[0]))
 	},
 }
 

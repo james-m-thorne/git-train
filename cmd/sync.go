@@ -16,34 +16,24 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "A brief description of your command",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var branchStack []string
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if currentBranch == "" || err != nil {
 			return fmt.Errorf("current branch not found")
 		}
 
-		masterBranch := ""
-		if includeMaster, _ := cmd.Flags().GetBool("include-master"); !includeMaster {
-			masterBranch, _ = command.GetOutput(git.ConfigGetMaster())
-		}
-		for currentBranch != masterBranch {
-			branchStack = append(branchStack, currentBranch)
-			currentBranch, err = command.GetOutput(git.ConfigGetParent(currentBranch))
-			if err != nil {
-				break
-			}
-		}
+		includeMaster, _ := cmd.Flags().GetBool("include-master")
+		branchStack := git.GetBranchStack(currentBranch, includeMaster)
 
 		for i := len(branchStack) - 1; i >= 1; i-- {
-			if err = command.Exec(git.Checkout(branchStack[i-1])); err != nil {
+			if err = Run(git.Checkout(branchStack[i-1])); err != nil {
 				return fmt.Errorf("checkout failed: %s", err)
 			}
-			if err = command.Exec(git.Rebase(branchStack[i])); err != nil {
+			if err = Run(git.Rebase(branchStack[i])); err != nil {
 				return fmt.Errorf("rebase failed: %s", err)
 			}
-			err = command.Exec(git.GitHubPrState())
+			err = Run(git.GitHubPrState())
 			if err == nil {
-				if err = command.Exec(git.Push()); err != nil {
+				if err = Run(git.Push()); err != nil {
 					return fmt.Errorf("push failed: %s", err)
 				}
 			} else {
