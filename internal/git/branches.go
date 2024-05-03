@@ -29,6 +29,8 @@ func GetBranchParentStack(currentBranch string, includeMaster bool) []string {
 		masterBranch, _ = command.GetOutput(ConfigGetMaster())
 	}
 	for currentBranch != masterBranch {
+		command.GetOutputFatal(CheckBranchExists(currentBranch))
+
 		branchStack = append(branchStack, currentBranch)
 		parentBranch, err := command.GetOutput(ConfigGetParent(currentBranch))
 		if err != nil {
