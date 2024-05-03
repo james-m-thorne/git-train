@@ -20,6 +20,10 @@ func GetCurrentBranch() string {
 	return "git branch --show-current"
 }
 
+func CheckBranchExists(branch string) string {
+	return fmt.Sprintf("git rev-parse --verify %s", branch)
+}
+
 func ConfigGetParent(branch string) string {
 	return fmt.Sprintf("git config --get git-train.%s.parent", branch)
 }

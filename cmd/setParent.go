@@ -18,6 +18,10 @@ var setParentCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		newParentBranch := args[0]
+		if err := Run(git.CheckBranchExists(newParentBranch)); err != nil {
+			return fmt.Errorf("branch does not exists %s", newParentBranch)
+		}
+
 		currentBranch, err := command.GetOutput(git.GetCurrentBranch())
 		if err != nil {
 			return fmt.Errorf("unable to get current branch")

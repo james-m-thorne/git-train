@@ -16,12 +16,15 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a branch and remove the stored parent config",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		deleteBranch := args[0]
+		if err := Run(git.CheckBranchExists(deleteBranch)); err != nil {
+			return fmt.Errorf("branch does not exists %s", deleteBranch)
+		}
 
-		currentBranch := args[0]
-		deleteBranches := []string{currentBranch}
+		deleteBranches := []string{deleteBranch}
 		deleteChildren, _ := cmd.Flags().GetBool("children")
 		if deleteChildren {
-			deleteBranches = addChildBranches(deleteBranches, currentBranch)
+			deleteBranches = addChildBranches(deleteBranches, deleteBranch)
 		}
 
 		for _, branch := range deleteBranches {
