@@ -12,6 +12,7 @@ var PrintBold = color.New(color.Bold).PrintlnFunc()
 // Exec is a simple wrapper for exec.Command("sh", "-c", ...).
 func Exec(command string, dryRun bool) error {
 	var stdout, stderr bytes.Buffer
+	fmt.Println()
 	PrintBold(command)
 	if dryRun {
 		return nil
