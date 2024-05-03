@@ -19,17 +19,23 @@ var prCmd = &cobra.Command{
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
-		branchStack := []string{currentBranch}
-		createParents, _ := cmd.Flags().GetBool("create-parents")
-		if createParents {
+		branchStack := git.GetBranchParentStack(currentBranch, false)
+
+		branchesToCreate := 1
+		createAllParents, _ := cmd.Flags().GetBool("create-parents")
+		if createAllParents {
+			branchesToCreate = len(branchStack)
 			branchStack = git.GetBranchParentStack(currentBranch, false)
 		}
 
-		for _, branch := range branchStack {
+		for i := 1; i < branchesToCreate; i++ {
+			branch := branchStack[i-1]
+			parentBranch := branchStack[i]
+			RunFatal(git.Checkout(branch))
 			RunFatal(git.PushSetUpstream())
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
-				RunFatal(git.GitHubPrCreate(branch))
+				RunFatal(git.GitHubPrCreate(parentBranch))
 			}
 		}
 	},
