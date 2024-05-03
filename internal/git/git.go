@@ -25,7 +25,7 @@ func ConfigGetParent(branch string) string {
 }
 
 func ConfigGetChild(branch string) string {
-	return fmt.Sprintf("git config --list | grep .parent=%s", branch)
+	return fmt.Sprintf("git config --list | grep '.parent=%s$'", branch)
 }
 
 func ConfigSetParent(currentBranch string, parentBranch string) string {

@@ -22,7 +22,7 @@ var syncCmd = &cobra.Command{
 		}
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
-		branchStack := git.GetBranchStack(currentBranch, includeMaster)
+		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
 
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			if err = Run(git.Checkout(branchStack[i-1])); err != nil {

@@ -39,7 +39,7 @@ var setMergedCmd = &cobra.Command{
 		}
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
-		branchStack := git.GetBranchStack(currentBranch, includeMaster)
+		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
 
 		hasPassedMergedBranch := false
 		for i := len(branchStack) - 1; i >= 1; i-- {
