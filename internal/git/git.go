@@ -28,8 +28,8 @@ func ConfigGetChild(branch string) string {
 	return fmt.Sprintf("git config --list | grep .parent=%s", branch)
 }
 
-func ConfigSetParent(currentBranch string, newBranch string) string {
-	return fmt.Sprintf("git config git-train.%s.parent %s", newBranch, currentBranch)
+func ConfigSetParent(currentBranch string, parentBranch string) string {
+	return fmt.Sprintf("git config git-train.%s.parent %s", currentBranch, parentBranch)
 }
 
 func ConfigDeleteParent(currentBranch string) string {
