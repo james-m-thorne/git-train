@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,7 @@ var appendCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		newBranch := args[0]
-		currentBranch := GetOutputFatal(git.GetCurrentBranch())
+		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
 		RunFatal(git.ConfigSetParent(newBranch, currentBranch))
 		RunFatal(git.CheckoutNewBranch(newBranch))
 	},

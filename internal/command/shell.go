@@ -55,3 +55,11 @@ func GetOutput(command string) (string, error) {
 	output = output[:len(output)-1] // trim the new line char
 	return output, nil
 }
+
+func GetOutputFatal(shell string) string {
+	result, err := GetOutput(shell)
+	if err != nil {
+		PrintFatalError("%s: %s", shell, err)
+	}
+	return result
+}
