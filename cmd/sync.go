@@ -31,7 +31,7 @@ var syncCmd = &cobra.Command{
 			if err = Run(git.Rebase(branchStack[i])); err != nil {
 				return fmt.Errorf("rebase failed: %s", err)
 			}
-			err = Run(git.GitHubPrState())
+			_, err := command.GetOutput(git.GitHubPrState())
 			if err == nil {
 				if err = Run(git.Push()); err != nil {
 					return fmt.Errorf("push failed: %s", err)
