@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 
@@ -19,13 +20,12 @@ var prCmd = &cobra.Command{
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
 		}
-		branchStack := git.GetBranchParentStack(currentBranch, false)
+		branchStack := git.GetBranchParentStack(currentBranch, true)
 
 		branchesToCreate := 1
 		createAllParents, _ := cmd.Flags().GetBool("create-parents")
 		if createAllParents {
 			branchesToCreate = len(branchStack) - 1
-			branchStack = git.GetBranchParentStack(currentBranch, false)
 		}
 
 		for i := 0; i < branchesToCreate; i++ {
