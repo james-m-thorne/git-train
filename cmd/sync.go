@@ -25,6 +25,7 @@ var syncCmd = &cobra.Command{
 		shouldPull, _ := cmd.Flags().GetBool("pull")
 		shouldPush, _ := cmd.Flags().GetBool("push")
 		shouldFetch, _ := cmd.Flags().GetBool("fetch")
+		shouldValidate, _ := cmd.Flags().GetBool("validate")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 		if shouldFetch {
 			RunFatal(git.Fetch())
@@ -46,6 +47,9 @@ var syncCmd = &cobra.Command{
 			if shouldPush {
 				RunFatal(git.Push())
 			}
+			if shouldValidate {
+				git.CheckInSyncWithRemoteBranch(currentBranch)
+			}
 		}
 	},
 }
@@ -53,6 +57,7 @@ var syncCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(syncCmd)
 	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches and exclude the master branch")
+	syncCmd.Flags().BoolP("validate", "v", false, "Validate the branches are in sync with remote")
 	syncCmd.Flags().BoolP("fetch", "f", false, "Fetch the latest changes from remote vcs")
 	syncCmd.Flags().BoolP("pull", "l", false, "Pull the latest changes from remote vcs")
 	syncCmd.Flags().BoolP("push", "p", false, "Push the latest changes to remote vcs")

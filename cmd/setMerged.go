@@ -4,6 +4,7 @@ import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
+	"slices"
 )
 
 // setMergedCmd represents the merge command
@@ -12,8 +13,6 @@ var setMergedCmd = &cobra.Command{
 	Short: "Remove a branch train and rebase all of the descendants",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		RunFatal(git.Fetch())
-
 		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
@@ -37,6 +36,9 @@ var setMergedCmd = &cobra.Command{
 		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
 		skipValidation, _ := cmd.Flags().GetBool("skip-validation")
 		if !skipValidation {
+			if !slices.Contains(branchStack, mergedBranch) {
+				command.PrintFatalError("invalid branch: %s\nmust be one of %v", mergedBranch, branchStack)
+			}
 			git.ValidateBranchStack(branchStack, []string{mergedBranch})
 		}
 
@@ -60,7 +62,7 @@ var setMergedCmd = &cobra.Command{
 				}
 				skipPull, _ := cmd.Flags().GetBool("skip-pull")
 				if !skipPull {
-					RunFatal(git.Checkout(parentBranch))
+					RunFatal(git.Checkout(grandParentBranch))
 					RunFatal(git.Pull())
 				}
 				mergeBaseHash = command.GetOutputFatal(git.GetCommitHash(parentBranch))
