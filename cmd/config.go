@@ -35,9 +35,20 @@ var configSetMasterBranchCmd = &cobra.Command{
 	},
 }
 
+var configSetRemoteCmd = &cobra.Command{
+	Use:   "remote",
+	Short: "Set the remote name",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		RunFatal(git.ConfigSetRemote(args[0]))
+	},
+}
+
 func init() {
 	configSetCmd.AddCommand(configSetMasterBranchCmd)
+	configSetCmd.AddCommand(configSetRemoteCmd)
 	configCmd.AddCommand(configGetCmd)
+	configCmd.AddCommand(configSetCmd)
 	configCmd.AddCommand(configSetCmd)
 	rootCmd.AddCommand(configCmd)
 }

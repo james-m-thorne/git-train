@@ -23,6 +23,7 @@ var setMergedCmd = &cobra.Command{
 			syncCmd.Run(syncCmd, []string{})
 		}
 
+		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
 		if currentBranch == "" {
 			command.PrintFatalError("current branch not found")
@@ -54,7 +55,7 @@ var setMergedCmd = &cobra.Command{
 
 		hasPassedMergeBranch := false
 		updateParentCommand := ""
-		mergeBaseHead := git.GetReadableCommitHash(branchStack[len(branchStack)-1])
+		mergeBaseHead := git.GetReadableCommitHash(remote, branchStack[len(branchStack)-1])
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			parentBranch := branchStack[i]
 			currentBranch = branchStack[i-1]
@@ -81,7 +82,7 @@ var setMergedCmd = &cobra.Command{
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			beforeRebaseMergeBaseHead := git.GetReadableCommitHash(currentBranch)
+			beforeRebaseMergeBaseHead := git.GetReadableCommitHash(remote, currentBranch)
 			if hasPassedMergeBranch {
 				RunFatal(git.RebaseOntoTarget(parentBranch, mergeBaseHead, currentBranch))
 			} else {

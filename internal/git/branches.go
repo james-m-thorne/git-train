@@ -70,11 +70,11 @@ func ValidateBranchStack(branchStack []string, skipValidationForBranches []strin
 	}
 }
 
-func CheckInSyncWithRemoteBranch(branch string) {
+func CheckInSyncWithRemoteBranch(remote string, branch string) {
 	currentHeadHash := command.GetOutputFatal(GetCommitHash(branch))
-	remoteHeadHash := command.GetOutputFatal(GetCommitHash(fmt.Sprintf("origin/%s", branch)))
+	remoteHeadHash := command.GetOutputFatal(GetCommitHash(fmt.Sprintf("%s/%s", remote, branch)))
 	if currentHeadHash != remoteHeadHash {
-		command.PrintFatalError("%s is not in sync with origin", branch)
+		command.PrintFatalError("%s is not in sync with remote", branch)
 	}
 }
 
@@ -86,12 +86,12 @@ func AddChildBranches(tree treeprint.Tree, branch string) {
 	}
 }
 
-func GetReadableCommitHash(branch string) string {
-	originBranch := fmt.Sprintf("origin/%s", branch)
+func GetReadableCommitHash(remote string, branch string) string {
+	remoteBranch := fmt.Sprintf("%s/%s", remote, branch)
 	branchHash := command.GetOutputFatal(GetCommitHash(branch))
-	originBranchHash := command.GetOutputFatal(GetCommitHash(originBranch))
-	if branchHash == originBranchHash {
-		return originBranch
+	remoteBranchHash := command.GetOutputFatal(GetCommitHash(remoteBranch))
+	if branchHash == remoteBranchHash {
+		return remoteBranch
 	}
 	return branchHash
 }

@@ -16,6 +16,14 @@ func ConfigSetMaster(branch string) string {
 	return fmt.Sprintf("git config git-train.master-branch %s", branch)
 }
 
+func ConfigGetRemote() string {
+	return "git config --get git-train.remote || echo origin"
+}
+
+func ConfigSetRemote(remote string) string {
+	return fmt.Sprintf("git config git-train.remote %s", remote)
+}
+
 func GetCurrentBranch() string {
 	return "git branch --show-current"
 }
@@ -64,20 +72,20 @@ func Delete(branch string) string {
 	return fmt.Sprintf("git branch -D %s", branch)
 }
 
-func ForcePush() string {
-	return "git push --force-with-lease -u origin HEAD"
+func ForcePush(remote string) string {
+	return fmt.Sprintf("git push --force-with-lease -u %s HEAD", remote)
 }
 
-func PushSetUpstream() string {
-	return "git push -u origin HEAD"
+func PushSetUpstream(remote string) string {
+	return fmt.Sprintf("git push -u %s HEAD", remote)
 }
 
 func Pull() string {
 	return "git pull"
 }
 
-func Fetch() string {
-	return "git fetch origin"
+func Fetch(remote string) string {
+	return fmt.Sprintf("git fetch %s", remote)
 }
 
 func MergeBase(branch string, parentBranch string) string {
@@ -88,10 +96,6 @@ func GetCommitHash(branch string) string {
 	return fmt.Sprintf("git rev-parse %s", branch)
 }
 
-func NumberCommitsBehindOrigin(branch string) string {
-	return fmt.Sprintf("git rev-list --left-right --count %[1]s...origin/%[1]s | cut -f2", branch)
-}
-
-func ResetOrigin(branch string) string {
-	return fmt.Sprintf("git reset --hard origin/%s", branch)
+func ResetRemote(remote string, branch string) string {
+	return fmt.Sprintf("git reset --hard %s/%s", remote, branch)
 }
