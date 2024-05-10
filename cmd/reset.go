@@ -20,7 +20,7 @@ var resetCmd = &cobra.Command{
 			command.PrintFatalError("current branch not found")
 		}
 
-		branchStack := git.GetBranchParentStack(currentBranch, false)
+		branchStack := git.GetBranchParentStack(currentBranch, true)
 		for i := len(branchStack) - 1; i >= 0; i-- {
 			RunFatal(git.Checkout(branchStack[i]))
 			RunFatal(git.ResetOrigin(branchStack[i]))

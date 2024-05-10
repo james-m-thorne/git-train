@@ -17,7 +17,6 @@ func PrintFatalError(format string, a ...any) {
 
 // Exec is a simple wrapper for exec.Command("sh", "-c", ...).
 func Exec(command string, exitOnError bool, dryRun bool) {
-	var stdout, stderr bytes.Buffer
 	fmt.Println()
 	PrintBold(command)
 	if dryRun {
@@ -25,19 +24,17 @@ func Exec(command string, exitOnError bool, dryRun bool) {
 	}
 
 	cmd := exec.Command("sh", "-c", command)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
 	if err != nil {
 		if exitOnError {
-			PrintFatalError("%s - %s: %s", command, err, stderr.String())
+			PrintFatalError("%s: %s", command, err)
 		} else {
-			color.Red("%s - %s: %s", command, err, stderr.String())
+			color.Red("%s: %s", command, err)
 		}
 	}
-
-	fmt.Print(stdout.String())
 }
 
 func GetOutput(command string) (string, error) {

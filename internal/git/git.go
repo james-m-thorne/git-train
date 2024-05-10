@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"strings"
 )
 
 func ConfigGetAll() string {
@@ -74,6 +75,10 @@ func PushSetUpstream() string {
 
 func Pull() string {
 	return "git pull"
+}
+
+func Graph(branches []string) string {
+	return fmt.Sprintf("git log --oneline --decorate --graph %s", strings.Join(branches, " "))
 }
 
 func MergeBase(branch string, parentBranch string) string {
