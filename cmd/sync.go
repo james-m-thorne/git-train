@@ -27,7 +27,7 @@ var syncCmd = &cobra.Command{
 		shouldFetch, _ := cmd.Flags().GetBool("fetch")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 		if shouldFetch {
-			RunFatal(git.Fetch(branchStack[len(branchStack)-1]))
+			RunFatal(git.Fetch())
 		}
 		if shouldPull {
 			RunFatal(git.Checkout(branchStack[len(branchStack)-1]))
@@ -36,9 +36,6 @@ var syncCmd = &cobra.Command{
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			currentBranch := branchStack[i-1]
 			RunFatal(git.Checkout(currentBranch))
-			if shouldFetch {
-				RunFatal(git.Fetch(currentBranch))
-			}
 			if shouldPull {
 				RunFatal(git.Pull())
 			}

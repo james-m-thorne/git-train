@@ -76,8 +76,8 @@ func Pull() string {
 	return "git pull"
 }
 
-func Fetch(branch string) string {
-	return fmt.Sprintf("git fetch origin %s", branch)
+func Fetch() string {
+	return "git fetch origin"
 }
 
 func MergeBase(branch string, parentBranch string) string {
