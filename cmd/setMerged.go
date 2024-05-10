@@ -52,6 +52,7 @@ var setMergedCmd = &cobra.Command{
 			git.ValidateBranchStack(branchStack, []string{mergedBranch})
 		}
 
+		hasPassedMergeBranch := false
 		updateParentCommand := ""
 		mergeBaseHead := command.GetOutputFatal(git.GetCommitHash(branchStack[len(branchStack)-1]))
 		for i := len(branchStack) - 1; i >= 1; i-- {
@@ -65,6 +66,7 @@ var setMergedCmd = &cobra.Command{
 					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)
 				}
 
+				hasPassedMergeBranch = true
 				parentBranch = branchStack[i+1]
 				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
 				if !skipUpdateParent {
@@ -80,7 +82,11 @@ var setMergedCmd = &cobra.Command{
 
 			RunFatal(git.Checkout(currentBranch))
 			beforeRebaseMergeBaseHead := git.GetReadableCommitHash(currentBranch)
-			RunFatal(git.RebaseOntoTarget(parentBranch, mergeBaseHead, currentBranch))
+			if hasPassedMergeBranch {
+				RunFatal(git.RebaseOntoTarget(parentBranch, mergeBaseHead, currentBranch))
+			} else {
+				RunFatal(git.Rebase(parentBranch))
+			}
 			mergeBaseHead = beforeRebaseMergeBaseHead
 		}
 
