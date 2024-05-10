@@ -45,7 +45,7 @@ var syncCmd = &cobra.Command{
 				RunFatal(git.Rebase(parentBranch))
 			}
 			if shouldPush {
-				RunFatal(git.Push())
+				RunFatal(git.ForcePush())
 			}
 			if shouldValidate {
 				git.CheckInSyncWithRemoteBranch(currentBranch)

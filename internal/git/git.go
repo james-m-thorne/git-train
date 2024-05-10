@@ -64,8 +64,8 @@ func Delete(branch string) string {
 	return fmt.Sprintf("git branch -D %s", branch)
 }
 
-func Push() string {
-	return "git push --force-with-lease"
+func ForcePush() string {
+	return "git push --force-with-lease -u origin HEAD"
 }
 
 func PushSetUpstream() string {
