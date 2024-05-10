@@ -85,3 +85,13 @@ func AddChildBranches(tree treeprint.Tree, branch string) {
 		AddChildBranches(childTree, child)
 	}
 }
+
+func GetReadableCommitHash(branch string) string {
+	originBranch := fmt.Sprintf("origin/%s", branch)
+	branchHash := command.GetOutputFatal(GetCommitHash(branch))
+	originBranchHash := command.GetOutputFatal(GetCommitHash(originBranch))
+	if branchHash == originBranchHash {
+		return originBranch
+	}
+	return branchHash
+}

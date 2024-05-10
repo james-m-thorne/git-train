@@ -88,6 +88,10 @@ func GetCommitHash(branch string) string {
 	return fmt.Sprintf("git rev-parse %s", branch)
 }
 
+func NumberCommitsBehindOrigin(branch string) string {
+	return fmt.Sprintf("git rev-list --left-right --count %[1]s...origin/%[1]s | cut -f2", branch)
+}
+
 func ResetOrigin(branch string) string {
 	return fmt.Sprintf("git reset --hard origin/%s", branch)
 }
