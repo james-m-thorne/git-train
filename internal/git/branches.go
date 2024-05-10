@@ -1,6 +1,7 @@
 package git
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/xlab/treeprint"
 	"regexp"
@@ -55,6 +56,12 @@ func ValidateBranchStack(branchStack []string, skipValidationForBranches []strin
 			parentHeadHash := command.GetOutputFatal(GetCommitHash(parentBranch))
 			if mergeHash != parentHeadHash {
 				command.PrintFatalError("non-linear branches for parent branch %s: %s and current branch %s : %s. try sync and rebase the branches", parentBranch, parentHeadHash, currentBranch, mergeHash)
+			}
+
+			currentHeadHash := command.GetOutputFatal(GetCommitHash(currentBranch))
+			remoteHeadHash := command.GetOutputFatal(GetCommitHash(fmt.Sprintf("origin/%s", currentBranch)))
+			if currentHeadHash != remoteHeadHash {
+				command.PrintFatalError("%s is not in sync with origin", currentBranch)
 			}
 		}
 	}

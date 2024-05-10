@@ -33,7 +33,10 @@ var setMergedCmd = &cobra.Command{
 
 		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
 		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
-		git.ValidateBranchStack(branchStack, []string{mergedBranch})
+		skipValidation, _ := cmd.Flags().GetBool("skip-validation")
+		if !skipValidation {
+			git.ValidateBranchStack(branchStack, []string{mergedBranch})
+		}
 
 		isMergedBranch := false
 		updateParentCommand := ""
@@ -80,6 +83,7 @@ var setMergedCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(setMergedCmd)
+	setMergedCmd.Flags().BoolP("skip-validation", "v", false, "Skip the validation of branch stack")
 	setMergedCmd.Flags().BoolP("skip-pull", "l", false, "Skip the pull for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-update-parent", "p", false, "Skip the update for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-merge-check", "S", false, "Skip the merge check for the parent branch")
