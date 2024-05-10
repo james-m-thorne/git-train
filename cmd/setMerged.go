@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
@@ -14,14 +15,11 @@ var setMergedCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		sync, _ := cmd.Flags().GetBool("sync")
-		if sync {
-			_ = syncCmd.Flags().Set("validate", "true")
-			_ = syncCmd.Flags().Set("no-update", "true")
-			_ = syncCmd.Flags().Set("pull", "true")
-			_ = syncCmd.Flags().Set("push", "true")
-			syncCmd.Run(syncCmd, []string{})
-		}
+		_ = syncCmd.Flags().Set("validate", "true")
+		_ = syncCmd.Flags().Set("no-update", "true")
+		_ = syncCmd.Flags().Set("pull", "true")
+		_ = syncCmd.Flags().Set("push", "true")
+		syncCmd.Run(syncCmd, []string{})
 
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
@@ -53,9 +51,7 @@ var setMergedCmd = &cobra.Command{
 			git.ValidateBranchStack(branchStack, []string{mergedBranch})
 		}
 
-		hasPassedMergeBranch := false
 		updateParentCommand := ""
-		mergeBaseHead := git.GetReadableCommitHash(remote, branchStack[len(branchStack)-1])
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			parentBranch := branchStack[i]
 			currentBranch = branchStack[i-1]
@@ -67,28 +63,15 @@ var setMergedCmd = &cobra.Command{
 					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)
 				}
 
-				hasPassedMergeBranch = true
 				parentBranch = branchStack[i+1]
 				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
 				if !skipUpdateParent {
 					updateParentCommand = git.ConfigSetParent(currentBranch, parentBranch)
 				}
-				skipPull, _ := cmd.Flags().GetBool("skip-pull")
-				if !sync && !skipPull {
-					RunFatal(git.Checkout(parentBranch))
-					RunFatal(git.Pull())
-				}
-				mergeBaseHead = mergedBranch
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			beforeRebaseMergeBaseHead := git.GetReadableCommitHash(remote, currentBranch)
-			if hasPassedMergeBranch {
-				RunFatal(git.RebaseOntoTarget(parentBranch, mergeBaseHead, currentBranch))
-			} else {
-				RunFatal(git.Rebase(parentBranch))
-			}
-			mergeBaseHead = beforeRebaseMergeBaseHead
+			RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
 		}
 
 		if updateParentCommand != "" {
@@ -99,9 +82,7 @@ var setMergedCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(setMergedCmd)
-	setMergedCmd.Flags().BoolP("sync", "s", false, "Run the sync of all the parent branches")
 	setMergedCmd.Flags().BoolP("skip-validation", "v", false, "Skip the validation of branch stack")
-	setMergedCmd.Flags().BoolP("skip-pull", "l", false, "Skip the pull for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-update-parent", "p", false, "Skip the ref update for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-merge-check", "m", false, "Skip the merge check for the parent branch")
 	setMergedCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches but exclude the master branch")

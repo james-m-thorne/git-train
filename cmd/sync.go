@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
@@ -25,12 +26,10 @@ var syncCmd = &cobra.Command{
 
 		shouldPull, _ := cmd.Flags().GetBool("pull")
 		shouldPush, _ := cmd.Flags().GetBool("push")
-		shouldFetch, _ := cmd.Flags().GetBool("fetch")
 		shouldValidate, _ := cmd.Flags().GetBool("validate")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
-		if shouldFetch {
-			RunFatal(git.Fetch(remote))
-		}
+
+		RunFatal(git.Fetch(remote))
 		if shouldPull {
 			RunFatal(git.Checkout(branchStack[len(branchStack)-1]))
 			RunFatal(git.Pull())
@@ -43,7 +42,7 @@ var syncCmd = &cobra.Command{
 			}
 			if !noUpdate {
 				parentBranch := branchStack[i]
-				RunFatal(git.Rebase(parentBranch))
+				RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
 			}
 			if shouldPush {
 				RunFatal(git.ForcePush(remote))
