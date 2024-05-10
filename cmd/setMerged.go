@@ -16,10 +16,10 @@ var setMergedCmd = &cobra.Command{
 
 		sync, _ := cmd.Flags().GetBool("sync")
 		if sync {
-			syncCmd.Flags().Set("validate", "true")
-			syncCmd.Flags().Set("no-update", "true")
-			syncCmd.Flags().Set("pull", "true")
-			syncCmd.Flags().Set("push", "true")
+			_ = syncCmd.Flags().Set("validate", "true")
+			_ = syncCmd.Flags().Set("no-update", "true")
+			_ = syncCmd.Flags().Set("pull", "true")
+			_ = syncCmd.Flags().Set("push", "true")
 			syncCmd.Run(syncCmd, []string{})
 		}
 
@@ -54,7 +54,7 @@ var setMergedCmd = &cobra.Command{
 
 		hasPassedMergeBranch := false
 		updateParentCommand := ""
-		mergeBaseHead := command.GetOutputFatal(git.GetCommitHash(branchStack[len(branchStack)-1]))
+		mergeBaseHead := git.GetReadableCommitHash(branchStack[len(branchStack)-1])
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			parentBranch := branchStack[i]
 			currentBranch = branchStack[i-1]
