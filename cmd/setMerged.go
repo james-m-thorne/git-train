@@ -17,7 +17,8 @@ var setMergedCmd = &cobra.Command{
 
 		_ = syncCmd.Flags().Set("validate", "true")
 		_ = syncCmd.Flags().Set("no-update", "true")
-		_ = syncCmd.Flags().Set("pull", "true")
+		_ = syncCmd.Flags().Set("fetch", "true")
+		_ = syncCmd.Flags().Set("merge", "true")
 		_ = syncCmd.Flags().Set("push", "true")
 		syncCmd.Run(syncCmd, []string{})
 

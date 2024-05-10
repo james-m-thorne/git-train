@@ -24,28 +24,27 @@ var syncCmd = &cobra.Command{
 			command.PrintFatalError("no parent branches found")
 		}
 
-		shouldPull, _ := cmd.Flags().GetBool("pull")
+		shouldFetch, _ := cmd.Flags().GetBool("fetch")
+		shouldMerge, _ := cmd.Flags().GetBool("merge")
 		shouldPush, _ := cmd.Flags().GetBool("push")
 		shouldValidate, _ := cmd.Flags().GetBool("validate")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 
-		RunFatal(git.Fetch(remote))
-		if shouldPull {
-			RunFatal(git.Checkout(branchStack[len(branchStack)-1]))
-			RunFatal(git.Pull())
+		if shouldFetch {
+			RunFatal(git.Fetch(remote))
 		}
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			currentBranch := branchStack[i-1]
 			RunFatal(git.Checkout(currentBranch))
-			if shouldPull {
-				RunFatal(git.Pull())
+			if shouldMerge {
+				RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, currentBranch)))
 			}
 			if !noUpdate {
 				parentBranch := branchStack[i]
 				RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
 			}
 			if shouldPush {
-				RunFatal(git.ForcePush(remote))
+				RunFatal(git.ForcePush(remote, currentBranch))
 			}
 			if shouldValidate {
 				git.CheckInSyncWithRemoteBranch(remote, currentBranch)
@@ -58,8 +57,8 @@ func init() {
 	rootCmd.AddCommand(syncCmd)
 	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches and exclude the master branch")
 	syncCmd.Flags().BoolP("validate", "v", false, "Validate the branches are in sync with remote")
-	syncCmd.Flags().BoolP("fetch", "f", false, "Fetch the latest changes from remote vcs")
-	syncCmd.Flags().BoolP("pull", "l", false, "Pull the latest changes from remote vcs")
+	syncCmd.Flags().BoolP("fetch", "f", true, "Fetch the latest changes from remote vcs")
+	syncCmd.Flags().BoolP("merge", "m", true, "Merge the changes from remote vcs")
 	syncCmd.Flags().BoolP("push", "p", false, "Push the latest changes to remote vcs")
 	syncCmd.Flags().BoolP("no-update", "n", false, "Do not rebase with the parent branch")
 }
