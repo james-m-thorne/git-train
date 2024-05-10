@@ -19,9 +19,9 @@ var setMergedCmd = &cobra.Command{
 			command.PrintFatalError("current branch not found")
 		}
 
-		children := git.GetAllChildBranches(currentBranch)
+		children := git.GetBranchChildren(currentBranch)
 		if len(children) > 0 {
-			command.PrintFatalError("must be a branch with no children. try again after `git checkout %s`", children[len(children)-1])
+			command.PrintFatalError("must be a branch with no children. try again after `git train last`")
 		}
 
 		mergedBranch := args[0]
