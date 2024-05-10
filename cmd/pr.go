@@ -36,6 +36,8 @@ var prCmd = &cobra.Command{
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
 				RunFatal(git.GitHubPrCreate(parentBranch))
+			} else {
+				RunFatal(git.GitHubPrView())
 			}
 		}
 	},
