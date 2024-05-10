@@ -31,8 +31,8 @@ var setMergedCmd = &cobra.Command{
 			}
 		}
 
-		includeMaster, _ := cmd.Flags().GetBool("include-master")
-		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
+		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
+		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
 		git.ValidateBranchStack(branchStack, []string{mergedBranch})
 
 		isMergedBranch := false
@@ -58,6 +58,7 @@ var setMergedCmd = &cobra.Command{
 					RunFatal(git.Checkout(parentBranch))
 					RunFatal(git.Pull())
 				}
+				mergeBaseHash = command.GetOutputFatal(git.GetCommitHash(parentBranch))
 			}
 
 			RunFatal(git.Checkout(currentBranch))
@@ -82,5 +83,5 @@ func init() {
 	setMergedCmd.Flags().BoolP("skip-pull", "l", false, "Skip the pull for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-update-parent", "p", false, "Skip the update for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-merge-check", "S", false, "Skip the merge check for the parent branch")
-	setMergedCmd.Flags().BoolP("include-master", "i", true, "Sync all the parent branches and include the master branch")
+	setMergedCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches but exclude the master branch")
 }

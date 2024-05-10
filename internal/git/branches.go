@@ -22,10 +22,10 @@ func GetBranchChildren(branch string) []string {
 	return children
 }
 
-func GetBranchParentStack(currentBranch string, includeMaster bool) []string {
+func GetBranchParentStack(currentBranch string, excludeMaster bool) []string {
 	var branchStack []string
 	masterBranch := ""
-	if !includeMaster {
+	if excludeMaster {
 		masterBranch, _ = command.GetOutput(ConfigGetMaster())
 	}
 	for currentBranch != masterBranch {

@@ -17,8 +17,8 @@ var syncCmd = &cobra.Command{
 			command.PrintFatalError("current branch not found")
 		}
 
-		includeMaster, _ := cmd.Flags().GetBool("include-master")
-		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
+		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
+		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
 		if len(branchStack) <= 1 {
 			command.PrintFatalError("no parent branches found")
 		}
@@ -52,7 +52,7 @@ var syncCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(syncCmd)
-	syncCmd.Flags().BoolP("include-master", "i", false, "Sync all the parent branches and include the master branch")
+	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches and exclude the master branch")
 	syncCmd.Flags().BoolP("pull", "l", false, "Pull the latest changes to remote vcs")
 	syncCmd.Flags().BoolP("push", "p", false, "Push the latest changes to remote vcs")
 	syncCmd.Flags().BoolP("no-update", "n", false, "Do not rebase or merge")
