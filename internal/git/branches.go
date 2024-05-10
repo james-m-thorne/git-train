@@ -41,6 +41,25 @@ func GetBranchParentStack(currentBranch string, includeMaster bool) []string {
 	return branchStack
 }
 
+func ValidateBranchStack(branchStack []string, skipValidationForBranches []string) {
+	skipBranchesSet := make(map[string]bool) // Create a map to represent the set
+	for _, item := range skipValidationForBranches {
+		skipBranchesSet[item] = true // Add each item to the set
+	}
+
+	for i := len(branchStack) - 1; i >= 1; i-- {
+		parentBranch := branchStack[i]
+		currentBranch := branchStack[i-1]
+		if _, ok := skipBranchesSet[currentBranch]; !ok {
+			mergeHash := command.GetOutputFatal(MergeBase(currentBranch, parentBranch))
+			parentHeadHash := command.GetOutputFatal(GetCommitHash(parentBranch))
+			if mergeHash != parentHeadHash {
+				command.PrintFatalError("non-linear branches for parent branch %s: %s and current branch %s : %s. try sync and rebase the branches", parentBranch, parentHeadHash, currentBranch, mergeHash)
+			}
+		}
+	}
+}
+
 func AddChildBranches(tree treeprint.Tree, branch string) {
 	childTree := tree.AddBranch(branch)
 	children := GetBranchChildren(branch)

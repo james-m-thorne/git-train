@@ -33,41 +33,54 @@ var setMergedCmd = &cobra.Command{
 
 		includeMaster, _ := cmd.Flags().GetBool("include-master")
 		branchStack := git.GetBranchParentStack(currentBranch, includeMaster)
+		git.ValidateBranchStack(branchStack, []string{mergedBranch})
 
-		hasPassedMergedBranch := false
-		for i := len(branchStack) - 1; i >= 1; i-- {
-			parentBranch := branchStack[i]
-			currentBranch = branchStack[i-1]
-			if parentBranch == mergedBranch {
-				continue
+		isMergedBranch := false
+		updateParentCommand := ""
+		mergeBaseHash := ""
+		for i := len(branchStack) - 1; i >= 2; i-- {
+			grandParentBranch := branchStack[i]
+			parentBranch := branchStack[i-1]
+			currentBranch = branchStack[i-2]
+
+			if mergeBaseHash == "" {
+				mergeBaseHash = command.GetOutputFatal(git.GetCommitHash(parentBranch))
 			}
-			if currentBranch == mergedBranch {
-				if i-2 < 0 {
-					command.PrintFatalError("merged branch has no parent: %s", mergedBranch)
+
+			if parentBranch == mergedBranch {
+				isMergedBranch = true
+				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
+				if !skipUpdateParent {
+					updateParentCommand = git.ConfigSetParent(currentBranch, grandParentBranch)
 				}
-				currentBranch = branchStack[i-2]
-				RunFatal(git.ConfigSetParent(currentBranch, parentBranch))
 				skipPull, _ := cmd.Flags().GetBool("skip-pull")
 				if !skipPull {
 					RunFatal(git.Checkout(parentBranch))
 					RunFatal(git.Pull())
 				}
-				hasPassedMergedBranch = true
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			if hasPassedMergedBranch {
-				RunFatal(git.RebaseOntoTarget(parentBranch, mergedBranch, currentBranch))
+			beforeRebaseMergeBaseHash := command.GetOutputFatal(git.GetCommitHash(currentBranch))
+			if isMergedBranch {
+				RunFatal(git.RebaseOntoTarget(grandParentBranch, parentBranch, currentBranch))
+				isMergedBranch = false
 			} else {
-				RunFatal(git.Rebase(parentBranch))
+				RunFatal(git.RebaseOntoTarget(parentBranch, mergeBaseHash, currentBranch))
 			}
+			mergeBaseHash = beforeRebaseMergeBaseHash
+		}
+
+		if updateParentCommand != "" {
+			RunFatal(updateParentCommand)
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(setMergedCmd)
-	setMergedCmd.Flags().BoolP("skip-pull", "p", false, "Skip the pull for the parent branch")
+	setMergedCmd.Flags().BoolP("skip-pull", "l", false, "Skip the pull for the parent branch")
+	setMergedCmd.Flags().BoolP("skip-update-parent", "p", false, "Skip the update for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-merge-check", "S", false, "Skip the merge check for the parent branch")
 	setMergedCmd.Flags().BoolP("include-master", "i", true, "Sync all the parent branches and include the master branch")
 }

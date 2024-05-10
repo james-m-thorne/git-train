@@ -75,3 +75,15 @@ func PushSetUpstream() string {
 func Pull() string {
 	return "git pull"
 }
+
+func MergeBase(branch string, parentBranch string) string {
+	return fmt.Sprintf("git merge-base %s %s", parentBranch, branch)
+}
+
+func GetCommitHash(branch string) string {
+	return fmt.Sprintf("git rev-parse %s", branch)
+}
+
+func ResetOrigin(branch string) string {
+	return fmt.Sprintf("git reset --hard origin/%s", branch)
+}
