@@ -23,6 +23,15 @@ func GetBranchChildren(branch string) []string {
 	return children
 }
 
+func GetAllChildBranches(currentBranch string) []string {
+	branches := []string{currentBranch}
+	children := GetBranchChildren(currentBranch)
+	for _, branch := range children {
+		branches = append(branches, GetAllChildBranches(branch)...)
+	}
+	return branches
+}
+
 func GetBranchParentStack(currentBranch string, excludeMaster bool) []string {
 	var branchStack []string
 	masterBranch := ""

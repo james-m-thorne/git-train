@@ -17,7 +17,7 @@ var deleteCmd = &cobra.Command{
 		deleteBranches := []string{deleteBranch}
 		deleteChildren, _ := cmd.Flags().GetBool("children")
 		if deleteChildren {
-			deleteBranches = addChildBranches(deleteBranches, deleteBranch)
+			deleteBranches = git.GetAllChildBranches(deleteBranch)
 		}
 
 		for _, branch := range deleteBranches {
@@ -25,15 +25,6 @@ var deleteCmd = &cobra.Command{
 			RunFatal(git.Delete(branch))
 		}
 	},
-}
-
-func addChildBranches(branches []string, currentBranch string) []string {
-	children := git.GetBranchChildren(currentBranch)
-	branches = append(branches, children...)
-	for _, branch := range children {
-		branches = addChildBranches(branches, branch)
-	}
-	return branches
 }
 
 func init() {
