@@ -13,11 +13,7 @@ var resetCmd = &cobra.Command{
 	Short: "Reset all parent branches on remote branches",
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
-		if currentBranch == "" {
-			command.PrintFatalError("current branch not found")
-		}
-
+		currentBranch := git.GetCurrentBranch()
 		branchStack := git.GetBranchParentStack(currentBranch, true)
 		for i := len(branchStack) - 1; i >= 0; i-- {
 			RunFatal(git.Checkout(branchStack[i]))

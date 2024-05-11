@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+func GetCurrentBranch() string {
+	branch := command.GetOutputFatal(ShowCurrentBranch())
+	if branch == "" {
+		command.PrintFatalError("current branch name is empty")
+	}
+	return branch
+}
+
 func GetBranchChildren(branch string) []string {
 	pattern := regexp.MustCompile(`git-train\.(.*?)\.parent`)
 	childrenString, _ := command.GetOutput(ConfigGetChild(branch))

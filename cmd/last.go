@@ -12,11 +12,7 @@ var lastCmd = &cobra.Command{
 	Use:   "last",
 	Short: "Checkout the last branch in the train",
 	Run: func(cmd *cobra.Command, args []string) {
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
-		if currentBranch == "" {
-			command.PrintFatalError("current branch not found")
-		}
-
+		currentBranch := git.GetCurrentBranch()
 		children := git.GetAllChildBranches(currentBranch)
 		RunFatal(git.Checkout(children[len(children)-1]))
 	},

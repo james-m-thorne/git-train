@@ -24,7 +24,7 @@ func ConfigSetRemote(remote string) string {
 	return fmt.Sprintf("git config git-train.remote %s", remote)
 }
 
-func GetCurrentBranch() string {
+func ShowCurrentBranch() string {
 	return "git branch --show-current"
 }
 

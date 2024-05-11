@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 
@@ -13,10 +14,8 @@ var prCmd = &cobra.Command{
 	Short: "Create a GitHub PR on the current branch and set the base as the parent",
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
-		if currentBranch == "" {
-			command.PrintFatalError("current branch not found")
-		}
+		currentBranch := git.GetCurrentBranch()
+
 		branchStack := git.GetBranchParentStack(currentBranch, true)
 		if len(branchStack) <= 1 {
 			command.PrintFatalError("no parent branches found")
@@ -39,6 +38,8 @@ var prCmd = &cobra.Command{
 			} else {
 				RunFatal(git.GitHubPrView())
 			}
+			body := command.GetOutputFatal(git.GitHubPrBody())
+			fmt.Println(body)
 		}
 	},
 }

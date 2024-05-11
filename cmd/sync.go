@@ -13,10 +13,7 @@ var syncCmd = &cobra.Command{
 	Short: "Sync all of the parent branches with upstream and to your current one",
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
-		if currentBranch == "" {
-			command.PrintFatalError("current branch not found")
-		}
+		currentBranch := git.GetCurrentBranch()
 
 		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
 		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)

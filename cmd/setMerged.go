@@ -23,10 +23,7 @@ var setMergedCmd = &cobra.Command{
 		syncCmd.Run(syncCmd, []string{})
 
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
-		if currentBranch == "" {
-			command.PrintFatalError("current branch not found")
-		}
+		currentBranch := git.GetCurrentBranch()
 
 		children := git.GetBranchChildren(currentBranch)
 		if len(children) > 0 {

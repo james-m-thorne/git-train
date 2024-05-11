@@ -16,7 +16,7 @@ var setParentCmd = &cobra.Command{
 		newParentBranch := args[0]
 		RunFatal(git.CheckBranchExists(newParentBranch))
 
-		currentBranch := command.GetOutputFatal(git.GetCurrentBranch())
+		currentBranch := git.GetCurrentBranch()
 		masterBranch, _ := command.GetOutput(git.ConfigGetMaster())
 		if currentBranch == masterBranch {
 			return
