@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 
 	"github.com/spf13/cobra"
