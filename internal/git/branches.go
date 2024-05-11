@@ -5,6 +5,7 @@ import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/xlab/treeprint"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -57,6 +58,13 @@ func GetBranchParentStack(currentBranch string, excludeMaster bool) []string {
 		currentBranch = parentBranch
 	}
 	return branchStack
+}
+
+func GetBranchStack(currentBranch string, excludeMaster bool) []string {
+	parentStack := GetBranchParentStack(currentBranch, excludeMaster)
+	slices.Reverse(parentStack)
+	childStack := GetBranchChildren(currentBranch)
+	return append(parentStack, childStack...)
 }
 
 func ValidateBranchStack(branchStack []string, skipValidationForBranches []string) {
