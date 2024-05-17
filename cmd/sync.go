@@ -69,7 +69,7 @@ var syncCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(syncCmd)
-	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the parent branches and exclude the master branch")
+	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the branches and exclude the master branch")
 	syncCmd.Flags().BoolP("validate", "v", false, "Validate the branches are in sync with remote")
 	syncCmd.Flags().BoolP("fetch", "f", true, "Fetch the latest changes from remote vcs")
 	syncCmd.Flags().BoolP("merge", "m", true, "Merge the changes from remote vcs")

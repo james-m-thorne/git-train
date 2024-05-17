@@ -12,7 +12,7 @@ var lastCmd = &cobra.Command{
 	Short: "Checkout the last branch in the train",
 	Run: func(cmd *cobra.Command, args []string) {
 		currentBranch := git.GetCurrentBranch()
-		children := git.GetAllChildBranches(currentBranch)
+		children := git.GetBranchChildStack(currentBranch)
 		RunFatal(git.Checkout(children[len(children)-1]))
 	},
 }

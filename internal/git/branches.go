@@ -26,21 +26,25 @@ func GetBranchChildren(branch string) []string {
 	for _, child := range childrenConfigValues {
 		matches := pattern.FindStringSubmatch(child)
 		if matches != nil && len(matches) > 1 {
-			children = append(children, matches[1])
+			childBranch := matches[1]
+			command.GetOutputFatal(CheckBranchExists(childBranch))
+			children = append(children, childBranch)
 		}
 	}
 	return children
 }
 
-func GetAllChildBranches(currentBranch string) []string {
+// GetBranchChildStack return the current branch and all its children
+func GetBranchChildStack(currentBranch string) []string {
 	branches := []string{currentBranch}
 	children := GetBranchChildren(currentBranch)
 	for _, branch := range children {
-		branches = append(branches, GetAllChildBranches(branch)...)
+		branches = append(branches, GetBranchChildStack(branch)...)
 	}
 	return branches
 }
 
+// GetBranchParentStack return the current branch and all its parents
 func GetBranchParentStack(currentBranch string, excludeMaster bool) []string {
 	var branchStack []string
 	masterBranch := ""
@@ -63,8 +67,8 @@ func GetBranchParentStack(currentBranch string, excludeMaster bool) []string {
 func GetBranchStack(currentBranch string, excludeMaster bool) []string {
 	parentStack := GetBranchParentStack(currentBranch, excludeMaster)
 	slices.Reverse(parentStack)
-	childStack := GetBranchChildren(currentBranch)
-	return append(parentStack, childStack...)
+	childStack := GetBranchChildStack(currentBranch)
+	return append(parentStack, childStack[1:]...)
 }
 
 func ValidateBranchStack(branchStack []string, skipValidationForBranches []string) {

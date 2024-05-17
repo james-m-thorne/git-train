@@ -61,13 +61,12 @@ Managed with ❤️ by [james-m-thorne/git-train](https://github.com/james-m-tho
 
 	for _, branch := range branchStack {
 		if pr, ok := branchPullRequests[branch]; ok {
-			currentPr := pr
-			if re.MatchString(currentPr.Body) {
-				currentPr.Body = re.ReplaceAllString(currentPr.Body, body)
+			if re.MatchString(pr.Body) {
+				pr.Body = re.ReplaceAllString(pr.Body, body)
 			} else {
-				currentPr.Body = fmt.Sprintf("%s\n\n%s", currentPr.Body, body)
+				pr.Body = fmt.Sprintf("%s\n\n%s", pr.Body, body)
 			}
-			branchPullRequests[branch] = currentPr
+			branchPullRequests[branch] = pr
 		}
 	}
 

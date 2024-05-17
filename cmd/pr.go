@@ -15,20 +15,21 @@ var prCmd = &cobra.Command{
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
 
-		branchStack := git.GetBranchStack(currentBranch, false)
-		if len(branchStack) <= 1 {
-			command.PrintFatalError("no parent branches found")
-		}
-
-		branchesToCreate := 1
+		var branchStack []string
 		createAll, _ := cmd.Flags().GetBool("all")
 		if createAll {
-			branchesToCreate = len(branchStack) - 1
+			branchStack = git.GetBranchStack(currentBranch, false)
+			if len(branchStack) <= 1 {
+				command.PrintFatalError("no parent branches found")
+			}
+		} else {
+			parentBranch := command.GetOutputFatal(git.ConfigGetParent(currentBranch))
+			branchStack = []string{parentBranch, currentBranch}
 		}
 
 		prs := git.GetBranchStackPullRequests(branchStack)
 		prs = git.UpdatePullRequestBodies(branchStack, prs)
-		for i := 1; i <= branchesToCreate; i++ {
+		for i := 1; i < len(branchStack); i++ {
 			parentBranch := branchStack[i-1]
 			branch := branchStack[i]
 			state, _ := command.GetOutput(git.GitHubPrState())
@@ -36,8 +37,10 @@ var prCmd = &cobra.Command{
 				RunFatal(git.Checkout(branch))
 				RunFatal(git.PushSetUpstream(remote))
 				RunFatal(git.GitHubPrCreate(parentBranch))
+				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
+			} else if state == "OPEN" {
+				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
 			}
-			RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
 		}
 	},
 }

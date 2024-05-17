@@ -122,7 +122,7 @@ func ResetRemote(remote string, branch string) string {
 }
 
 func GitHubPrCreate(parentBranch string) string {
-	return fmt.Sprintf("gh pr create --base %s --web", parentBranch)
+	return fmt.Sprintf("gh pr create --base %s --fill", parentBranch)
 }
 
 func GitHubPrEditBody(number int, body string) string {

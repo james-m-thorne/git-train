@@ -26,11 +26,6 @@ var setMergedCmd = &cobra.Command{
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
 
-		children := git.GetBranchChildren(currentBranch)
-		if len(children) > 0 {
-			command.PrintFatalError("must be a branch with no children. try again after `git train last`")
-		}
-
 		mergedBranch := args[0]
 		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); !skipMergeCheck {
 			RunFatal(git.Checkout(mergedBranch))
