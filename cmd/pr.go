@@ -32,9 +32,9 @@ var prCmd = &cobra.Command{
 		for i := 1; i < len(branchStack); i++ {
 			parentBranch := branchStack[i-1]
 			branch := branchStack[i]
+			RunFatal(git.Checkout(branch))
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
-				RunFatal(git.Checkout(branch))
 				RunFatal(git.PushSetUpstream(remote))
 				RunFatal(git.GitHubPrCreate(parentBranch))
 			} else if state == "OPEN" {
