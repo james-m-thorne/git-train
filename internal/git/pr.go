@@ -45,15 +45,13 @@ func UpdatePullRequestBodies(branchStack []string, branchPullRequests map[string
 		}
 	}
 
-	body := fmt.Sprintf(`
-<!---GitTrainStart--->
+	body := fmt.Sprintf(`<!---GitTrainStart--->
 **Pull Request Stack:**
 
 %s
 
 Managed with ❤️ by [james-m-thorne/git-train](https://github.com/james-m-thorne/git-train)
-<!---GitTrainEnd--->
-`, prList)
+<!---GitTrainEnd--->`, prList)
 
 	// Compile the regular expression to match everything between
 	// <!---GitTrainStart---> and <!---GitTrainEnd--->
