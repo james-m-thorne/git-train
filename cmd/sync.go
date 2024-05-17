@@ -72,7 +72,7 @@ func init() {
 	syncCmd.Flags().BoolP("exclude-master", "e", false, "Sync all the branches and exclude the master branch")
 	syncCmd.Flags().BoolP("validate", "v", false, "Validate the branches are in sync with remote")
 	syncCmd.Flags().BoolP("fetch", "f", true, "Fetch the latest changes from remote vcs")
-	syncCmd.Flags().BoolP("merge", "m", true, "Merge the changes from remote vcs")
+	syncCmd.Flags().BoolP("merge", "m", false, "Merge the changes from remote vcs")
 	syncCmd.Flags().BoolP("push", "p", false, "Push the latest changes to remote vcs")
 	syncCmd.Flags().BoolP("no-update", "n", false, "Do not rebase with the parent branch")
 }
