@@ -14,7 +14,7 @@ var resetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
-		branchStack := git.GetBranchParentStack(currentBranch, true)
+		branchStack := git.GetBranchStack(currentBranch, true)
 		for i := len(branchStack) - 1; i >= 0; i-- {
 			RunFatal(git.Checkout(branchStack[i]))
 			RunFatal(git.ResetRemote(remote, branchStack[i]))

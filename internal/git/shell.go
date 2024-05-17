@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"strings"
 )
 
 func ConfigGetAll() string {
@@ -22,6 +23,30 @@ func ConfigGetRemote() string {
 
 func ConfigSetRemote(remote string) string {
 	return fmt.Sprintf("git config git-train.remote %s", remote)
+}
+
+func ConfigGetMergedCompletedBranches(mergedBranch string) string {
+	return fmt.Sprintf("git config --get git-train.set-merged.%s.completed-branches || echo ''", mergedBranch)
+}
+
+func ConfigSetMergedCompletedBranches(mergedBranch string, branches []string) string {
+	return fmt.Sprintf("git config git-train.set-merged.%s.completed-branches %s", mergedBranch, strings.Join(branches, ","))
+}
+
+func ConfigDeleteMergedCompletedBranches(mergedBranch string) string {
+	return fmt.Sprintf("git config --unset git-train.set-merged.%s.completed-branches", mergedBranch)
+}
+
+func ConfigGetSyncCompletedBranches() string {
+	return "git config --get git-train.sync.completed-branches || echo ''"
+}
+
+func ConfigSetSyncCompletedBranches(branches []string) string {
+	return fmt.Sprintf("git config git-train.sync.completed-branches %s", strings.Join(branches, ","))
+}
+
+func ConfigDeleteSyncCompletedBranches() string {
+	return "git config --unset git-train.sync.completed-branches"
 }
 
 func ShowCurrentBranch() string {
@@ -78,10 +103,6 @@ func ForcePush(remote string, branch string) string {
 
 func PushSetUpstream(remote string) string {
 	return fmt.Sprintf("git push -u %s HEAD", remote)
-}
-
-func Pull() string {
-	return "git pull"
 }
 
 func Fetch(remote string) string {

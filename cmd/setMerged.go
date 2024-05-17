@@ -6,6 +6,7 @@ import (
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
 	"slices"
+	"strings"
 )
 
 // setMergedCmd represents the merge command
@@ -40,7 +41,7 @@ var setMergedCmd = &cobra.Command{
 		}
 
 		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
-		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
+		branchStack := git.GetBranchStack(currentBranch, excludeMaster)
 		skipValidation, _ := cmd.Flags().GetBool("skip-validation")
 		if !skipValidation {
 			if !slices.Contains(branchStack, mergedBranch) {
@@ -49,11 +50,14 @@ var setMergedCmd = &cobra.Command{
 			git.ValidateBranchStack(branchStack, []string{mergedBranch})
 		}
 
+		completedBranchesStr := command.GetOutputFatal(git.ConfigGetMergedCompletedBranches(mergedBranch))
+		completedBranches := strings.Split(completedBranchesStr, ",")
+
 		updateParentCommand := ""
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			parentBranch := branchStack[i]
 			currentBranch = branchStack[i-1]
-			if currentBranch == mergedBranch {
+			if currentBranch == mergedBranch || slices.Contains(completedBranches, currentBranch) {
 				continue
 			}
 			if parentBranch == mergedBranch {
@@ -70,11 +74,16 @@ var setMergedCmd = &cobra.Command{
 
 			RunFatal(git.Checkout(currentBranch))
 			RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
+
+			completedBranches = append(completedBranches, currentBranch)
+			Run(git.ConfigSetMergedCompletedBranches(mergedBranch, completedBranches))
 		}
 
 		if updateParentCommand != "" {
 			RunFatal(updateParentCommand)
 		}
+
+		Run(git.ConfigDeleteMergedCompletedBranches(mergedBranch))
 	},
 }
 

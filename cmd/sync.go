@@ -5,6 +5,8 @@ import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
+	"slices"
+	"strings"
 )
 
 // syncCmd represents the sync command
@@ -16,7 +18,7 @@ var syncCmd = &cobra.Command{
 		currentBranch := git.GetCurrentBranch()
 
 		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
-		branchStack := git.GetBranchParentStack(currentBranch, excludeMaster)
+		branchStack := git.GetBranchStack(currentBranch, excludeMaster)
 		if len(branchStack) <= 1 {
 			command.PrintFatalError("no parent branches found")
 		}
@@ -27,11 +29,18 @@ var syncCmd = &cobra.Command{
 		shouldValidate, _ := cmd.Flags().GetBool("validate")
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 
+		completedBranchesStr := command.GetOutputFatal(git.ConfigGetSyncCompletedBranches())
+		completedBranches := strings.Split(completedBranchesStr, ",")
+
 		if shouldFetch {
 			RunFatal(git.Fetch(remote))
 		}
 		for i := len(branchStack) - 1; i >= 1; i-- {
 			currentBranch := branchStack[i-1]
+			if slices.Contains(completedBranches, currentBranch) {
+				continue
+			}
+
 			RunFatal(git.Checkout(currentBranch))
 			if shouldMerge {
 				RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, currentBranch)))
@@ -46,7 +55,12 @@ var syncCmd = &cobra.Command{
 			if shouldValidate {
 				git.CheckInSyncWithRemoteBranch(remote, currentBranch)
 			}
+
+			completedBranches = append(completedBranches, currentBranch)
+			Run(git.ConfigSetSyncCompletedBranches(completedBranches))
 		}
+
+		Run(git.ConfigDeleteSyncCompletedBranches())
 	},
 }
 
