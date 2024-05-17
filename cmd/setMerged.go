@@ -57,18 +57,18 @@ var setMergedCmd = &cobra.Command{
 		}
 
 		updateParentCommand := ""
-		for i := len(branchStack) - 1; i >= 1; i-- {
-			parentBranch := branchStack[i]
-			currentBranch = branchStack[i-1]
+		for i := 1; i < len(branchStack); i++ {
+			parentBranch := branchStack[i-1]
+			currentBranch = branchStack[i]
 			if currentBranch == mergedBranch || slices.Contains(completedBranches, currentBranch) {
 				continue
 			}
 			if parentBranch == mergedBranch {
-				if i+1 >= len(branchStack) {
+				if i-2 < 0 {
 					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)
 				}
 
-				parentBranch = branchStack[i+1]
+				parentBranch = branchStack[i-2]
 				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
 				if !skipUpdateParent {
 					updateParentCommand = git.ConfigSetParent(currentBranch, parentBranch)

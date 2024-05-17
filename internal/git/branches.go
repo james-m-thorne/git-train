@@ -73,9 +73,9 @@ func ValidateBranchStack(branchStack []string, skipValidationForBranches []strin
 		skipBranchesSet[item] = true // Add each item to the set
 	}
 
-	for i := len(branchStack) - 1; i >= 1; i-- {
-		parentBranch := branchStack[i]
-		currentBranch := branchStack[i-1]
+	for i := 1; i < len(branchStack); i++ {
+		parentBranch := branchStack[i-1]
+		currentBranch := branchStack[i]
 		if _, ok := skipBranchesSet[currentBranch]; !ok {
 			mergeHash := command.GetOutputFatal(MergeBase(currentBranch, parentBranch))
 			parentHeadHash := command.GetOutputFatal(GetCommitHash(parentBranch))

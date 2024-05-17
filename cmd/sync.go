@@ -38,8 +38,8 @@ var syncCmd = &cobra.Command{
 		if shouldFetch {
 			RunFatal(git.Fetch(remote))
 		}
-		for i := len(branchStack) - 1; i >= 1; i-- {
-			currentBranch := branchStack[i-1]
+		for i := 1; i < len(branchStack); i++ {
+			currentBranch := branchStack[i]
 			if slices.Contains(completedBranches, currentBranch) {
 				continue
 			}
@@ -49,7 +49,7 @@ var syncCmd = &cobra.Command{
 				RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, currentBranch)))
 			}
 			if !noUpdate {
-				parentBranch := branchStack[i]
+				parentBranch := branchStack[i-1]
 				RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
 			}
 			if shouldPush {
