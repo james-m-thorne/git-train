@@ -38,6 +38,10 @@ var syncCmd = &cobra.Command{
 		if shouldFetch {
 			RunFatal(git.Fetch(remote))
 		}
+		if !excludeMaster {
+			masterBranch := branchStack[0]
+			RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, masterBranch)))
+		}
 		for i := 1; i < len(branchStack); i++ {
 			currentBranch := branchStack[i]
 			if slices.Contains(completedBranches, currentBranch) {
