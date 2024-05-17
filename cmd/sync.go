@@ -30,7 +30,10 @@ var syncCmd = &cobra.Command{
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 
 		completedBranchesStr := command.GetOutputFatal(git.ConfigGetSyncCompletedBranches())
-		completedBranches := strings.Split(completedBranchesStr, ",")
+		var completedBranches []string
+		if len(completedBranchesStr) > 0 {
+			completedBranches = strings.Split(completedBranchesStr, ",")
+		}
 
 		if shouldFetch {
 			RunFatal(git.Fetch(remote))

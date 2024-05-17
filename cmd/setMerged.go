@@ -51,7 +51,10 @@ var setMergedCmd = &cobra.Command{
 		}
 
 		completedBranchesStr := command.GetOutputFatal(git.ConfigGetMergedCompletedBranches(mergedBranch))
-		completedBranches := strings.Split(completedBranchesStr, ",")
+		var completedBranches []string
+		if len(completedBranchesStr) > 0 {
+			completedBranches = strings.Split(completedBranchesStr, ",")
+		}
 
 		updateParentCommand := ""
 		for i := len(branchStack) - 1; i >= 1; i-- {
