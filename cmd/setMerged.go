@@ -16,12 +16,15 @@ var setMergedCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		_ = syncCmd.Flags().Set("validate", "true")
-		_ = syncCmd.Flags().Set("no-update", "true")
-		_ = syncCmd.Flags().Set("fetch", "true")
-		_ = syncCmd.Flags().Set("merge", "true")
-		_ = syncCmd.Flags().Set("push", "true")
-		syncCmd.Run(syncCmd, []string{})
+		skipSync, _ := cmd.Flags().GetBool("skip-sync")
+		if !skipSync {
+			_ = syncCmd.Flags().Set("validate", "true")
+			_ = syncCmd.Flags().Set("no-update", "true")
+			_ = syncCmd.Flags().Set("fetch", "true")
+			_ = syncCmd.Flags().Set("merge", "true")
+			_ = syncCmd.Flags().Set("push", "true")
+			syncCmd.Run(syncCmd, []string{})
+		}
 
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
@@ -87,6 +90,7 @@ var setMergedCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(setMergedCmd)
+	setMergedCmd.Flags().BoolP("skip-sync", "s", false, "Skip the sync of branch stack")
 	setMergedCmd.Flags().BoolP("skip-validation", "v", false, "Skip the validation of branch stack")
 	setMergedCmd.Flags().BoolP("skip-update-parent", "p", false, "Skip the ref update for the parent branch")
 	setMergedCmd.Flags().BoolP("skip-merge-check", "m", false, "Skip the merge check for the parent branch")

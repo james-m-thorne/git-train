@@ -40,6 +40,7 @@ var syncCmd = &cobra.Command{
 		}
 		if !excludeMaster {
 			masterBranch := branchStack[0]
+			RunFatal(git.Checkout(masterBranch))
 			RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, masterBranch)))
 		}
 		for i := 1; i < len(branchStack); i++ {
