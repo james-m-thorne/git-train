@@ -101,8 +101,8 @@ func ForcePush(remote string, branch string) string {
 	return fmt.Sprintf("git push --force-with-lease -u %s %s", remote, branch)
 }
 
-func PushSetUpstream(remote string) string {
-	return fmt.Sprintf("git push -u %s HEAD", remote)
+func BranchSetUpstream(remote string, branch string) string {
+	return fmt.Sprintf("git branch -u %s/%s", remote, branch)
 }
 
 func Fetch(remote string) string {

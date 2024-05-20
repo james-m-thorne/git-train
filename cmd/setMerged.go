@@ -22,7 +22,6 @@ var setMergedCmd = &cobra.Command{
 			_ = syncCmd.Flags().Set("no-update", "true")
 			_ = syncCmd.Flags().Set("fetch", "true")
 			_ = syncCmd.Flags().Set("merge", "true")
-			_ = syncCmd.Flags().Set("push", "true")
 			syncCmd.Run(syncCmd, []string{})
 		}
 
@@ -57,6 +56,7 @@ var setMergedCmd = &cobra.Command{
 		updateParentCommand := ""
 		for i := 1; i < len(branchStack); i++ {
 			parentBranch := branchStack[i-1]
+			fromBranch := fmt.Sprintf("%s/%s", remote, parentBranch)
 			currentBranch = branchStack[i]
 			if currentBranch == mergedBranch || slices.Contains(completedBranches, currentBranch) {
 				continue
@@ -74,7 +74,7 @@ var setMergedCmd = &cobra.Command{
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
+			RunFatal(git.RebaseOntoTarget(parentBranch, fromBranch, currentBranch))
 
 			completedBranches = append(completedBranches, currentBranch)
 			Run(git.ConfigSetMergedCompletedBranches(mergedBranch, completedBranches))

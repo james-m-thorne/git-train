@@ -50,7 +50,7 @@ var syncCmd = &cobra.Command{
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			RunFatal(git.PushSetUpstream(remote))
+			RunFatal(git.BranchSetUpstream(remote, currentBranch))
 			if shouldMerge {
 				RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, currentBranch)))
 			}
