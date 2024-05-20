@@ -37,6 +37,7 @@ var prCmd = &cobra.Command{
 			if state == "" {
 				RunFatal(git.PushSetUpstream(remote))
 				RunFatal(git.GitHubPrCreate(parentBranch))
+				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
 			} else if state == "OPEN" {
 				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
 			}
