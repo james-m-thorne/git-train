@@ -30,9 +30,11 @@ var syncCmd = &cobra.Command{
 		noUpdate, _ := cmd.Flags().GetBool("no-update")
 
 		completedBranchesStr := command.GetOutputFatal(git.ConfigGetSyncCompletedBranches())
+		validateCompleted := false
 		var completedBranches []string
 		if len(completedBranchesStr) > 0 {
 			completedBranches = strings.Split(completedBranchesStr, ",")
+			validateCompleted = true
 		}
 
 		if shouldFetch {
@@ -47,6 +49,18 @@ var syncCmd = &cobra.Command{
 			currentBranch := branchStack[i]
 			if slices.Contains(completedBranches, currentBranch) {
 				continue
+			}
+			if validateCompleted {
+				result, err := command.YesNoInput(fmt.Sprintf("Have you completed the rebase for the branch %s?", currentBranch))
+				if err != nil {
+					command.PrintFatalError("error checking branch rebase: %s", err)
+				}
+				if result {
+					completedBranches = append(completedBranches, currentBranch)
+					RunFatal(git.ConfigSetSyncCompletedBranches(completedBranches))
+					validateCompleted = false
+					continue
+				}
 			}
 
 			RunFatal(git.Checkout(currentBranch))

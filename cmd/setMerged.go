@@ -48,9 +48,11 @@ var setMergedCmd = &cobra.Command{
 		}
 
 		completedBranchesStr := command.GetOutputFatal(git.ConfigGetMergedCompletedBranches(mergedBranch))
+		validateCompleted := false
 		var completedBranches []string
 		if len(completedBranchesStr) > 0 {
 			completedBranches = strings.Split(completedBranchesStr, ",")
+			validateCompleted = true
 		}
 
 		updateParentCommand := ""
@@ -61,6 +63,19 @@ var setMergedCmd = &cobra.Command{
 			if currentBranch == mergedBranch || slices.Contains(completedBranches, currentBranch) {
 				continue
 			}
+			if validateCompleted {
+				result, err := command.YesNoInput(fmt.Sprintf("Have you completed the rebase for the branch %s?", currentBranch))
+				if err != nil {
+					command.PrintFatalError("error checking branch rebase: %s", err)
+				}
+				if result {
+					completedBranches = append(completedBranches, currentBranch)
+					RunFatal(git.ConfigSetMergedCompletedBranches(mergedBranch, completedBranches))
+					validateCompleted = false
+					continue
+				}
+			}
+
 			if parentBranch == mergedBranch {
 				if i-2 < 0 {
 					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)

@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"bufio"
 	"fmt"
+	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 )
 
@@ -22,16 +21,11 @@ var deleteCmd = &cobra.Command{
 		}
 		deleteBranches := git.GetBranchStack(deleteBranch, true)
 		fmt.Println(fmt.Sprintf("Branches to delete: %s", strings.Join(deleteBranches, ", ")))
-		fmt.Println("Are you sure you want to delete these branches? (y/n)")
-
-		reader := bufio.NewReader(os.Stdin)
-		response, err := reader.ReadString('\n')
+		result, err := command.YesNoInput("Are you sure you want to delete these branches? (y/n)")
 		if err != nil {
 			return err
 		}
-
-		response = strings.TrimSpace(strings.ToLower(response))
-		if response != "y" {
+		if !result {
 			return fmt.Errorf("stopping delete")
 		}
 		return nil

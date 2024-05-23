@@ -1,11 +1,13 @@
 package command
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/fatih/color"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 var PrintBold = color.New(color.Bold).PrintlnFunc()
@@ -59,4 +61,17 @@ func GetOutputFatal(shell string) string {
 		PrintFatalError("%s: %s", shell, err)
 	}
 	return result
+}
+
+func YesNoInput(question string) (bool, error) {
+	fmt.Printf("\n%s (y/n)\n", question)
+
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+
+	response = strings.TrimSpace(strings.ToLower(response))
+	return response == "y", nil
 }
