@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/james-m-thorne/git-train/internal/command"
 	"github.com/james-m-thorne/git-train/internal/git"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -28,16 +29,21 @@ var prCmd = &cobra.Command{
 		}
 
 		prs := git.GetBranchStackPullRequests(branchStack)
-		prs = git.UpdatePullRequestBodies(branchStack, prs)
+		prs = git.UpdatePullRequestBodies(branchStack[1:], prs)
 		for i := 1; i < len(branchStack); i++ {
 			parentBranch := branchStack[i-1]
 			branch := branchStack[i]
 			RunFatal(git.Checkout(branch))
 			state, _ := command.GetOutput(git.GitHubPrState())
 			if state == "" {
-				RunFatal(git.BranchSetUpstream(remote, currentBranch))
+				RunFatal(git.PushSetUpstream(remote, currentBranch))
 				RunFatal(git.GitHubPrCreate(parentBranch))
-				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
+				prNumberStr := command.GetOutputFatal(git.GitHubPrNumber())
+				prNumber, err := strconv.Atoi(prNumberStr)
+				if err != nil {
+					command.PrintFatalError("failed to parse PR number: %s", prNumberStr)
+				}
+				RunFatal(git.GitHubPrEditBody(prNumber, prs[branch].Body))
 			} else if state == "OPEN" {
 				RunFatal(git.GitHubPrEditBody(prs[branch].Number, prs[branch].Body))
 			}

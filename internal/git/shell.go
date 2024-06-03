@@ -101,6 +101,10 @@ func ForcePush(remote string, branch string) string {
 	return fmt.Sprintf("git push --force-with-lease -u %s %s", remote, branch)
 }
 
+func PushSetUpstream(remote string, branch string) string {
+	return fmt.Sprintf("git push -u %s %s", remote, branch)
+}
+
 func BranchSetUpstream(remote string, branch string) string {
 	return fmt.Sprintf("git branch -u %s/%s", remote, branch)
 }
@@ -131,4 +135,8 @@ func GitHubPrEditBody(number int, body string) string {
 
 func GitHubPrState() string {
 	return "gh pr status --json state --jq '.currentBranch.state'"
+}
+
+func GitHubPrNumber() string {
+	return "gh pr status --json number --jq '.currentBranch.number'"
 }
