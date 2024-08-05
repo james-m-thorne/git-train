@@ -105,10 +105,6 @@ func PushSetUpstream(remote string, branch string) string {
 	return fmt.Sprintf("git push -u %s %s", remote, branch)
 }
 
-func BranchSetUpstream(remote string, branch string) string {
-	return fmt.Sprintf("git branch -u %s/%s", remote, branch)
-}
-
 func Fetch(remote string) string {
 	return fmt.Sprintf("git fetch %s", remote)
 }

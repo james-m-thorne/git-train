@@ -64,13 +64,18 @@ var syncCmd = &cobra.Command{
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			RunFatal(git.BranchSetUpstream(remote, currentBranch))
 			if shouldMerge {
 				RunFatal(git.Merge(fmt.Sprintf("%s/%s", remote, currentBranch)))
 			}
 			if !noUpdate {
 				parentBranch := branchStack[i-1]
-				RunFatal(git.RebaseOntoTarget(parentBranch, fmt.Sprintf("%s/%s", remote, parentBranch), currentBranch))
+				remoteBranch := fmt.Sprintf("%s/%s", remote, parentBranch)
+				_, branchDoesNotExistErr := command.GetOutput(git.CheckBranchExists(remoteBranch))
+				if branchDoesNotExistErr != nil {
+					// If we haven't pushed to remote yet then rebase on the parent branch
+					remoteBranch = parentBranch
+				}
+				RunFatal(git.RebaseOntoTarget(parentBranch, remoteBranch, currentBranch))
 			}
 			if shouldPush {
 				RunFatal(git.ForcePush(remote, currentBranch))
