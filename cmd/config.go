@@ -49,6 +49,5 @@ func init() {
 	configSetCmd.AddCommand(configSetRemoteCmd)
 	configCmd.AddCommand(configGetCmd)
 	configCmd.AddCommand(configSetCmd)
-	configCmd.AddCommand(configSetCmd)
 	rootCmd.AddCommand(configCmd)
 }
