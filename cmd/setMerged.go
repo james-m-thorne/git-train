@@ -15,6 +15,12 @@ var setMergedCmd = &cobra.Command{
 	Short: "Remove a branch train and rebase all of the descendants",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		remote := command.GetOutputFatal(git.ConfigGetRemote())
+		currentBranch := git.GetCurrentBranch()
+		masterBranch := command.GetOutputFatal(git.ConfigGetMaster())
+		if currentBranch == masterBranch {
+			command.PrintFatalError("cannot run set-merged on %s branch", masterBranch)
+		}
 
 		skipSync, _ := cmd.Flags().GetBool("skip-sync")
 		if !skipSync {
@@ -24,9 +30,6 @@ var setMergedCmd = &cobra.Command{
 			_ = syncCmd.Flags().Set("merge", "true")
 			syncCmd.Run(syncCmd, []string{})
 		}
-
-		remote := command.GetOutputFatal(git.ConfigGetRemote())
-		currentBranch := git.GetCurrentBranch()
 
 		mergedBranch := args[0]
 		if skipMergeCheck, _ := cmd.Flags().GetBool("skip-merge-check"); !skipMergeCheck {
@@ -58,7 +61,6 @@ var setMergedCmd = &cobra.Command{
 		updateParentCommand := ""
 		for i := 1; i < len(branchStack); i++ {
 			parentBranch := branchStack[i-1]
-			fromBranch := fmt.Sprintf("%s/%s", remote, parentBranch)
 			currentBranch = branchStack[i]
 			if currentBranch == mergedBranch || slices.Contains(completedBranches, currentBranch) {
 				continue
@@ -89,7 +91,14 @@ var setMergedCmd = &cobra.Command{
 			}
 
 			RunFatal(git.Checkout(currentBranch))
-			RunFatal(git.RebaseOntoTarget(parentBranch, fromBranch, currentBranch))
+			remoteBranch := fmt.Sprintf("%s/%s", remote, parentBranch)
+			_, checkBranchExistsErr := command.GetOutput(git.CheckBranchExists(remoteBranch))
+			if checkBranchExistsErr != nil {
+				command.PrintFatalError("remote branch %s does not exist, try running\ngit train sync --push --no-update", remoteBranch)
+				remoteBranch = parentBranch
+			}
+
+			RunFatal(git.RebaseOntoTarget(parentBranch, remoteBranch, currentBranch))
 
 			completedBranches = append(completedBranches, currentBranch)
 			Run(git.ConfigSetMergedCompletedBranches(mergedBranch, completedBranches))

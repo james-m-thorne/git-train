@@ -15,6 +15,10 @@ var prCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
+		masterBranch := command.GetOutputFatal(git.ConfigGetMaster())
+		if currentBranch == masterBranch {
+			command.PrintFatalError("cannot run pr on %s branch", masterBranch)
+		}
 
 		var branchStack []string
 		createAll, _ := cmd.Flags().GetBool("all")

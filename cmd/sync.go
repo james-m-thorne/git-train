@@ -16,6 +16,10 @@ var syncCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		remote := command.GetOutputFatal(git.ConfigGetRemote())
 		currentBranch := git.GetCurrentBranch()
+		masterBranch := command.GetOutputFatal(git.ConfigGetMaster())
+		if currentBranch == masterBranch {
+			command.PrintFatalError("cannot run sync on %s branch", masterBranch)
+		}
 
 		excludeMaster, _ := cmd.Flags().GetBool("exclude-master")
 		branchStack := git.GetBranchStack(currentBranch, excludeMaster)
