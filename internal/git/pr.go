@@ -50,7 +50,6 @@ func UpdatePullRequestBodies(branchStack []string, branchPullRequests map[string
 
 %s
 
-Managed with ❤️ by [james-m-thorne/git-train](https://github.com/james-m-thorne/git-train)
 <!---GitTrainEnd--->`, prList)
 
 	// Compile the regular expression to match everything between
