@@ -78,24 +78,23 @@ var setMergedCmd = &cobra.Command{
 				}
 			}
 
-			if parentBranch == mergedBranch {
-				if i-2 < 0 {
-					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)
-				}
-
-				parentBranch = branchStack[i-2]
-				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
-				if !skipUpdateParent {
-					updateParentCommand = git.ConfigSetParent(currentBranch, parentBranch)
-				}
-			}
-
 			RunFatal(git.Checkout(currentBranch))
 			remoteBranch := fmt.Sprintf("%s/%s", remote, parentBranch)
 			_, checkBranchExistsErr := command.GetOutput(git.CheckBranchExists(remoteBranch))
 			if checkBranchExistsErr != nil {
 				command.PrintFatalError("remote branch %s does not exist, try running\ngit train sync --push --no-update", remoteBranch)
 				remoteBranch = parentBranch
+			}
+
+			if parentBranch == mergedBranch {
+				if i-2 < 0 {
+					command.PrintFatalError("%s does not have a valid parent branch", mergedBranch)
+				}
+				parentBranch = branchStack[i-2]
+				skipUpdateParent, _ := cmd.Flags().GetBool("skip-update-parent")
+				if !skipUpdateParent {
+					updateParentCommand = git.ConfigSetParent(currentBranch, parentBranch)
+				}
 			}
 
 			RunFatal(git.RebaseOntoTarget(parentBranch, remoteBranch, currentBranch))
